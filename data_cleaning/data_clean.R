@@ -12,17 +12,70 @@ flag_cl <- function(df, code_list, new_col_name = "has_any_code") {
     )
 }
 
+#function for combining dataframes. can be more than one
+#change master_index = 1 to change which is the 'master' df  in the list
+#this includes type coercion to the master df, in case of type mismatch
+append_dfs <- function(..., master_index = 1) {
+  dfs <- list(...)
+  master <- dfs[[master_index]]
+  master_cols <- names(master)
+  master_types <- sapply(master, class)
+  
+  aligned_dfs <- lapply(seq_along(dfs), function(i) {
+    df <- dfs[[i]]
+    
+    # Add missing columns
+    missing_cols <- setdiff(master_cols, names(df))
+    if (length(missing_cols) > 0) {
+      df[missing_cols] <- NA
+      message("Added missing columns to df", i, ": ", paste(missing_cols, collapse = ", "))
+    }
+    
+    # Reorder columns to match master
+    df <- df[, master_cols, drop = FALSE]
+    
+    # Coerce types to match master
+    for (col in master_cols) {
+      if (!inherits(df[[col]], master_types[[col]])) {
+        suppressWarnings({
+          df[[col]] <- tryCatch({
+            as(df[[col]], master_types[[col]])
+          }, error = function(e) {
+            warning("Could not coerce column '", col, "' in df", i, " to type ", master_types[[col]])
+            df[[col]]
+          })
+        })
+      }
+    }
+    
+    return(df)
+  })
+  
+  bind_rows(aligned_dfs)
+}
+
 #set working directory
 
 setwd("Own path")
       
-#load dataset
+#load datasets
 
-unity_cab1 <- read.csv("./subdirectory/unity.csv")
+unity_cab1 <- read.csv("./subdirectory/unity1.csv")
+unity_cab2 <- read.csv("./subdirectory/unity2.csv")
+ck_cab1 <- read.csv("./subdirectory/ck.csv")
+croydon_cab1 <- read.csv("./subdirectory/croydon1.csv")
+croydon_cab2 <- read.csv("./subdirectory/croydon2.csv")
 
-#load shappt reference and hiv codes
+#append datasets using append_data function
 
-shappt <- read.csv("./subdirectory/codelist/shappt_codelist.csv")
+unity <- append_dfs(unity_cab1, ck_cab1, unity_cab2)
+
+#croydon 2 onto croydon 1
+
+croydon <- append_dfs(croydon_cab1, croydon_cab2)
+
+#load shappt reference codes for HIV and PrEP
+
 shappt_filter <- read.csv("./subdirectory/codelist/hiv_shappt.csv")
 
 #pull out diagnostic codes to filter data
