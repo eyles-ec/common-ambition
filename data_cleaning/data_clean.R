@@ -54,6 +54,50 @@ append_dfs <- function(..., master_index = 1) {
   bind_rows(aligned_dfs)
 }
 
+#function for filtering and cleaning the data
+data_processing <- function(df, diag_codes) {
+  # HIV-related diagnostic filter
+  df <- df %>%
+    filter(if_any(starts_with("DiagCode"), ~ . %in% diag_codes))
+  
+  # Simplified ethnicity
+  df <- df %>%
+    mutate(
+      ethn_simple = case_when(
+        EthnicGroupDescription %in% c(
+          "Caribbean", "White and Black Caribbean", "African",
+          "Any other Black background", "White and Black African"
+        ) ~ "ACHC",
+        TRUE ~ "non ACHC"
+      )
+    )
+  
+  # HIV test flags
+  df <- flag_cl(df, c("P1B", "P1C"), "declined_hiv_test")
+  df <- flag_cl(df, c("P1A", "T4", "T7", "T-HIV"), "hiv_test")
+  
+  # HIV diagnosis flags
+  df <- flag_cl(df, c("H", "H1X", "H1AX", "H1BX"), "extant_hiv")
+  df <- flag_cl(df, c("H1", "H1A", "H1B"), "new_hiv")
+  df <- flag_cl(df, "H1B", "new_late_hiv")
+  
+  # PrEP flags
+  df <- flag_cl(df, c("O41", "O42", "O43", "O51", "O52", "O53"), "current_prep")
+  df <- flag_cl(df, "O44", "declined_prep")
+  df <- flag_cl(df, "O45", "stopped_prep")
+  
+  # Date breakdown
+  df$EventDate <- as.Date(df$EventDate, format = "%d/%m/%Y")
+  df <- df %>%
+    mutate(
+      year = year(EventDate),
+      month = month(EventDate),
+      week = isoweek(EventDate)
+    )
+  
+  return(df)
+}
+
 #set working directory
 
 setwd("Own path")
@@ -81,75 +125,10 @@ shappt_filter <- read.csv("./subdirectory/codelist/hiv_shappt.csv")
 #pull out diagnostic codes to filter data
 diag_codes<-shappt_filter$code
 
-#filter only diagnostic columns with HIV-related codes
-#there are ten separate diagnostic columns 
-unity_cab1_hiv <- unity_cab1 %>%
-  filter(if_any(starts_with("DiagCode"), ~ . %in% diag_codes))
+#use data_processing function to process croydon and unity datasets
+unity_hiv <- data_processing(unity, diag_codes)
+croydon_hiv <- data_processing(croydon, diag_codes)
 
-#Generate simplified ethnicity column
-unity_cab1_hiv <- unity_cab1_hiv %>%
-  mutate(
-    ethn_simple = case_when(
-      EthnicGroupDescription %in% c("Caribbean",
-                                    "White and Black Caribbean",
-                                    "African",
-                                    "Any other Black background",
-                                    "White and Black African") ~ EthnicGroupDescription,
-      TRUE ~ "non ACHC"
-    )
-  )
-
-#generate HIV test variables
-
-#variable if test declined or inappropriate (Shappt P1B, P1C)
-cl_hiv_dec = c("P1B", "P1C")
-
-unity_cab1_hiv <- flag_cl(unity_cab1_hiv, cl_hiv_dec, "declined_hiv_test")
-
-#variable if test conducted (Shappt P1A, T4, T7, T-HIV)
-cl_hiv_test = c("P1A", "T4", "T7", "T-HIV")
-
-unity_cab1_hiv <- flag_cl(unity_cab1_hiv, cl_hiv_test, "hiv_test")
-
-#generate HIV diagnosis variables
-
-#extant HIV (Shappt H, H1X H1AX, H1BX (last three are previoulsy diagnosis elsewhere diagnostic codes))
-cl_extant = c("H", "H1X", "H1AX", "H1BX")
-
-unity_cab1_hiv <- flag_cl(unity_cab1_hiv, cl_extant, "extant_hiv")
-
-#New diagnosis (Shappt H1, H1A, H1B)
-cl_new = c("H1", "H1A", "H1B")
-
-unity_cab1_hiv <- flag_cl(unity_cab1_hiv, cl_new, "new_hiv")
-
-#New diagnosis late (Shappt H1B)
-
-unity_cab1_hiv <- flag_cl(unity_cab1_hiv, "H1B", "new_late_hiv")
-
-#generate PrEP variables
-
-#Starting or continuing PrEP even through other source, including prescriptions (Shappt O41, O42, O43, O51, O52, O53)
-cl_curr_prep <- c("O41", "O42", "O43", "O51", "O52", "O53")
-
-unity_cab1_hiv <- flag_cl(unity_cab1_hiv, cl_curr_prep, "current_prep")
-
-#Declined PrEP (Shappt O44)
-
-unity_cab1_hiv <- flag_cl(unity_cab1_hiv, "O44", "declined_prep")
-
-#Stopped PrEP (Shappt O45)
-
-unity_cab1_hiv <- flag_cl(unity_cab1_hiv, "O45", "stopped_prep")
-
-#generate year, month, and (ISO) week variables
-unity_cab1_hiv$EventDate <- as.Date(unity_cab1_hiv$EventDate, format = "%d/%m/%Y")
-
-unity_cab1_hiv <- unity_cab1_hiv %>%
-  mutate(
-    year = year(EventDate),
-    month = month(EventDate),
-    week = isoweek(EventDate)  # ISO week number (1–53)
-  )
-
-  
+#save intermediate step as CSV
+write.csv(unity_hiv, "./subdirectory/Processed/unity_hiv_episodes.csv")
+write.csv(croydon_hiv, "./subdirectory/Processed/croydon_hiv_episodes.csv")
