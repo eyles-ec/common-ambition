@@ -130,6 +130,17 @@ diag_codes<-shappt_filter$code
 unity_hiv <- data_processing(unity, diag_codes)
 croydon_hiv <- data_processing(croydon, diag_codes)
 
+#add croydon or bristol flag
+unity_hiv$location <- "Bristol"
+croydon_hiv$location <- "Croydon"
+
 #save intermediate step as CSV
 write.csv(unity_hiv, "./subdirectory/Processed/unity_hiv_episodes.csv")
 write.csv(croydon_hiv, "./subdirectory/Processed/croydon_hiv_episodes.csv")
+
+#append datasets together to create one analytic dataset
+
+combined_data <- append_dfs(unity_hiv, croydon_hiv)
+
+#save combined dataset
+write.csv(combined_data, "./subdirectory/Processed/combined_episodes.csv")
