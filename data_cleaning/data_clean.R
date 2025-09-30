@@ -92,7 +92,8 @@ data_processing <- function(df, diag_codes) {
     mutate(
       year = year(EventDate),
       month = month(EventDate),
-      week = isoweek(EventDate)
+      week = isoweek(EventDate),
+      quarter = quarter(EventDate)
     )
   
   return(df)
