@@ -89,10 +89,14 @@ data_processing <- function(df, diag_codes) {
   df$EventDate <- as.Date(df$EventDate, format = "%d/%m/%Y")
   df <- df %>%
     mutate(
+      #break down components
       year = year(EventDate),
       month = month(EventDate),
       week = isoweek(EventDate),
-      quarter = quarter(EventDate)
+      quarter = quarter(EventDate),
+      #create week index and pre/post intervention timeline
+      week_index = (year - 2021) * 52 + week,
+      time = week_index - 68.5
     )
   
   return(df)
