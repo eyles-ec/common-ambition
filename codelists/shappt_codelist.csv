@@ -1,0 +1,163 @@
+﻿code,diag_find_test
+40,Sexual Assault (Acute presentation)
+41,Sexual Assault (Non - acute presentation)
+A1,Primary syphilis
+A10,Ocular syphilis
+A11,Otosyphilis
+A1X,Primary syphilis - previously diagnosed elsewhere
+A2,Secondary syphilis
+A2X,Secondary syphilis - previously diagnosed elsewhere
+A3,Early latent syphilis
+A3X,Early latent syphilis - previously diagnosed elsewhere
+A4,Cardiovascular syphilis
+A4X,Cardiovascular syphilis - previously diagnosed elsewhere
+A5,Neurosyphilis
+A5X,Neurosyphillis syphilis - previously diagnosed elsewhere
+A6,All other late and latent syphilis
+A6X,All other late and latent syphilis - previously diagnosed elsewhere
+A7A,Congenital syphilis
+A7AX,Congenital syphilis - previously diagnosed elsewhere
+B,Gonorrhoea
+BM,Gonorrhoea - medication given
+BO,Gonorrhoea - pharayngeal infection
+BOM,"Gonorrhoea - pharayngeal infection, medication given"
+BOX,"Gonorrhoea - pharayngeal infection, previously diagnosed elsewhere"
+BR,Gonorrhoea - rectal infection
+BRM,"Gonorrhoea - rectal infection, medication given"
+BRX,"Gonorrhoea - rectal infection, previously diagnosed elsewhere"
+BX,Gonorrhoea - previously diagnosed elsewhere
+C1,Chancroid
+C10A,Anogenital Herpes simplex: First episode
+C10AM,Anogenital Herpes simplex: first episode - medication given
+C10B,Anogenital Herpes simplex: Recurrent episode
+C10BM,Anogenital Herpes simplex: recurrent episode - medication given
+C11A,Anogenital warts infection: First episode
+C11AM,Anogenital warts infection: first episode - medication given
+C11D,Anogenital warts infection: Recurrent episode
+C11DM,Anogenital warts infection: recurrent episode - medication given
+C12,Molluscum contagiosum
+C13,Viral hepatitis B (HbsAg positive): First diagnosis
+C14,Viral hepatitis C: First diagnosis
+C15,Viral hepatitis A: Acute infection
+C16,Mycoplasma genitalium
+C2,Lymphogranuloma venereum (LGV)
+C2O,Lymphogranuloma venereum (LGV) - Pharayngeal infection
+C2R,Lymphogranuloma venereum (LGV) - Rectal infection
+C3,Donovanosis
+C4,Chlamydial infection
+C4M,Chlamydia - medication given
+C4N,Non-specific genital infection (NSGI)
+C4NR,Non-specific genital infection (NSGI) - rectal infection (proctitis)
+C4O,Chlamydia - pharayngeal infection
+C4OM,"Chlamydia - pharayngeal infection, medication given"
+C4OX,"Chlamydia - pharayngeal infection, previously diagnosed elsewhere"
+C4R,Chlamydia - rectal infection
+C4RM,"Chlamydia - rectal infection, medication given"
+C4RX,"Chlamydia - rectal infection, previously diagnosed elsewhere"
+C4X,Chlamydia - previously diagnosed elsewhere
+C5A,Pelvic inflammatory disease (PID) and epididymitis
+C5B,Ophthalmia neonatorum
+C6A,Trichomoniasis
+C6AX,Trichomoniasis - previously diagnosed elsewhere
+C6B,Anaerobic/Bacterial vaginosis and anaerobic balanitis
+C6C,Other vaginosis/vaginitis/balanitis
+C7A,Anogenital candidosis
+C8,Scabies
+C9,Pediculosis pubis
+CSE1,Child sexual exploitation : concerns raised at internal assessment
+CSE2,Child sexual exploitation : concerns raised with internal safeguarding professionals
+CSE3,Child sexual exploitation : referred to external safeguarding professionals
+D2A,Urinary Tract Infection
+D2B,Other conditions requiring treatment at Level 3 Genitourinary Medicine Services
+D3,Other Sexual Health and HIV Episodes  not requiring treatment
+DV,Concern of domestic violence (or abuse)
+FGM,Female genital mutilation (of any type)
+H,HIV positive - Previously Diagnosed
+H1,New HIV diagnosis
+H1A,New HIV diagnosis: Acute
+H1A,H1A - New HIV diagnosis: acute
+H1AX,New HIV diagnosis: acute - previously diagnosed elsewhere
+H1B,New HIV diagnosis: Late infection (AIDS defined)
+H1B,H1B - HIV diagnosis: late (AIDS defined)
+H1BX,New HIV diagnosis: late (AIDS defined) - previously diagnosed elsewhere
+H1X,New HIV diagnosis - previously diagnosed elsewhere
+H2,Attendance for HIV-related care
+M,Medication given
+O,Pharyngeal infection
+O20,Hepatitis A vaccination: 1st dose
+O21,Hepatitis A vaccination: Subsequent dose
+O22,Hepatitis A immune
+O23,Partner notification related attendance: Hepatitis A contact
+O31,PrEP eligibility criteria 1: MSM/transgender woman
+O32,PrEP eligibility criteria 2: HIV positive partner
+O33,PrEP eligibility criteria 3: Other high risk
+O41,PrEP regimen: Starting or continuing daily Prep
+O42,PrEP regimen: Starting or continuing event based Prep
+O43,PrEP regimen: Continued through other source
+O44,PrEP regimen: Offered and declined
+O45,PrEP regimen: Stopped
+O51,PrEP prescription: 30 tablets
+O52,PrEP prescription: 60 tablets
+O53,PrEP prescription: 90 tablets
+O60,PrEP patient characteristic: Transgender
+P1A,Human Immunodeficiency Virus (HIV) antibody test (no sexual health screen)
+P1B,Human Immunodeficiency Virus (HIV) antibody test offered and refused
+P1C,HIV test inappropriate
+P2A,Hepatitis B vaccination: 1st dose
+P2B,Hepatitis B vaccination: 2nd dose
+P2C,Hepatitis B vaccination: 3rd dose
+P2D,Hepatitis B vaccination: 4th dose
+P2E,Hepatitis B vaccination: Booster
+P2I,Hepatitis B immune
+P3,contraception and family planning advice (excl condom provision)
+P4,Cervical cytology done
+P4A,Cervical cytology: minor abnormality
+P4B,Cervical cytology: major abnormality
+PEPS,Post exposure prophylaxis after sexual exposure (PEPSE)
+PN,Partner notification initiated related attendance
+PNC,Partner notification related attendance: Chlamydia contact
+PNG,Partner notification related attendance: Gonorrhoea contact
+PNH,Partner notification related attendance: HIV contact
+PNN,Partner notification related attendance: Non-specific genital infection contact
+PNP,Partner notification related attendance: PID/Epididymitis contact
+PNS,Partner notification related attendance: Syphilis contact
+PNT,Partner notification related attendance: Trichomoniasis contact
+PR1,Pregnant 1-12 weeks
+PR2,Pregnant 13-28 weeks
+PR3,Pregnant 29-40 weeks
+R,Rectal infection
+REF1,Referral from Chlamydia Screening Programme
+REF2,Referral to a Level 3 Genitourinary Medicine Service
+REF3,Referral from home testing/sampling service
+SG1,Shigella flexneri (group B)
+SG2,Shigella sonnei (group D)
+SG3,Shigella other/unspecified
+SRH,Sexual and Reproductive Health PATIENT
+SW,Sex Worker
+T1,Chlamydia test
+T10,Rapid testing (STI and/or HIV)
+T11,Chlamydia test declined
+T12,Mycoplasma genitalium test
+T2,Chlamydia and gonorrhoea tests
+T3,"Chlamydia, gonorrhoea and syphilis tests"
+T4,"Chlamydia, gonnorrhoea, syphilis and HIV antibody tests"
+T5,Herpes Simplex Virus (HSV) Test
+T6,Hepatitis A/B/C Test
+T7,Syphilis and HIV Testing
+T8,Self sampling (urinalysis/swabs) without Health Care worker (HCW) consultation
+T9,STI testing not required/appropriate
+TS,Microscopy
+TT,3 Site Testing (chlamydia and gonorrhoea)
+W1,HPV vaccination: 1st dose
+W1,W1 - HPV Vaccination: 1st dose
+W1Q,HPV Vaccination: 1st dose - quadrivalent vaccine
+W2,HPV vaccination: 2nd dose
+W2,W2 - HPV Vaccination: 2nd dose
+W2Q,HPV Vaccination: 2nd dose - quadrivalent vaccine
+W3,HPV vaccination: 3rd dose
+W3,W3 - HPV Vaccination: 3rd dose
+W3Q,HPV Vaccination: 3rd dose - quadrivalent vaccine
+W4,HPV vaccination: offered and declined
+W5,HPV vaccination: previously received in full
+X,Previously diagnosed elsewhere
+Z,Prisoner
