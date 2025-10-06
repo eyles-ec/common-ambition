@@ -1,9 +1,7 @@
 library(dplyr)
-library(tidyverse)
-library(data.table)
+library(tibble)
 library(rlang)
 library(lubridate)
-library(collapse)
 
 #episode count function, including mitigating for repeated episode numbers on different dates
 

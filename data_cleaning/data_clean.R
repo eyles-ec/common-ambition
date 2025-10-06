@@ -1,6 +1,4 @@
 library(dplyr)
-library(tidyverse)
-library(data.table)
 
 #function for creating codelist flags easily. you can name the new column anything
 
