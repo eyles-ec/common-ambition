@@ -96,7 +96,8 @@ data_processing <- function(df, diag_codes) {
       quarter = quarter(EventDate),
       #create week index and pre/post intervention timeline
       week_index = (year - 2021) * 52 + week,
-      time = week_index - 68.5
+      time = week_index - 68.5,
+      period = if_else(time > 0, 1, 0)
     )
   
   return(df)
