@@ -61,13 +61,12 @@ data_processing <- function(df, diag_codes) {
     filter(if_any(starts_with("DiagCode"), ~ . %in% diag_codes))
   
   # Simplified ethnicity
+  # This includes two and one digit ethnicity codes 
   df <- df %>%
     mutate(
       ethn_simple = case_when(
-        EthnicGroupDescription %in% c(
-          "Caribbean", "White and Black Caribbean", "African",
-          "Any other Black background", "White and Black African"
-        ) ~ "ACHC",
+        EthnicGroupCode %in% c("M", "D", "N", "P") ~ "ACHC",
+        EthnicGroupCode %in% c("MO", "NO", "PD", "DO", "PO", "EO") ~ "ACHC",
         TRUE ~ "non ACHC"
       )
     )
