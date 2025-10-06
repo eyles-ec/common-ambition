@@ -97,5 +97,22 @@ cab_weekly <- cab_weekly %>%
 
 cab_weekly <- add_rates(cab_weekly)
 
+
+#generate grouping variables for modelling 
+
+cab_weekly <- cab_weekly %>%
+  mutate(
+    group_bristol = case_when(
+      location == "Bristol" & ethn_simple == "ACHC" ~ "Bristol ACHC",
+      location == "Bristol" & ethn_simple == "non ACHC" ~ "Bristol non ACHC",
+      location == "Croydon" & ethn_simple == "ACHC" ~ "Croydon ACHC",
+      location == "Croydon" & ethn_simple == "non ACHC" ~ "Croydon non ACHC",
+      TRUE ~ NA_character_
+    ),
+    group_bristol = factor(group_bristol, levels = c(
+      "Bristol ACHC", "Bristol non ACHC", "Croydon ACHC", "Croydon non ACHC"
+    ))
+  )
+
 #export weekly data 
 write.csv(cab_weekly, "./subdirectory/Analysis/weekly_combined.csv")
