@@ -1,0 +1,8 @@
+﻿code,diag_find_test,type
+T1,Chlamydia test,STI
+T12,Mycoplasma genitalium test,STI
+T2,Chlamydia and gonorrhoea tests,STI
+T3,"Chlamydia, gonorrhoea and syphilis tests",STI
+T5,Herpes Simplex Virus (HSV) Test,STI
+T6,Hepatitis A/B/C Test,STI
+TT,3 Site Testing (chlamydia and gonorrhoea),STI

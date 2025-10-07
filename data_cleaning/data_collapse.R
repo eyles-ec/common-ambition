@@ -1,40 +1,35 @@
 library(dplyr)
-library(tibble)
+library(tidyverse)
+library(data.table)
 library(rlang)
 library(lubridate)
-
-#episode count function, including mitigating for repeated episode numbers on different dates
-
-episode_count <- function(df, patient = "PatientIdentifier", episode = "EpisodeNumber", date = "EventDate") {
-  # Create a summary table of unique episode-date combinations per person, and count them
-  episode_summary <- df %>%
-    distinct(.data[[patient]], .data[[episode]], .data[[date]]) %>%
-    group_by(.data[[patient]]) %>%
-    summarise(episode_count = n(), .groups = "drop")
-  
-  # Join the count back to original dataframe with a left join
-  df <- df %>%
-    left_join(episode_summary, by = patient)
-  
-  return(df)
-}
+library(collapse)
 
 #collapse function
 
 collapse_weekly <- function(df,
-                            week_col = "week",
+                            time_col = "time",
                             year_col = "year",
+                            period_col = "period",
                             group_vars = c("ethn_simple", "location"),
-                            sum_vars = c("hiv_test", "declined_hiv_test", "current_prep", "declined_prep", "stopped_prep")) {
+                            sum_vars = c("hiv_test", "declined_hiv_test", "current_prep", "declined_prep", "stopped_prep", "extant_hiv", "new_hiv", "new_late_hiv", "sti_test"),
+                            count_vars = c("weekly_episode_count", "sti_test_count")) {
   df %>%
-    group_by(.data[[year_col]], .data[[week_col]], !!!syms(group_vars)) %>%
-    summarise(across(all_of(sum_vars), ~ sum(.x == TRUE, na.rm = TRUE)), .groups = "drop")
+    group_by(.data[[year_col]], 
+             .data[[time_col]], 
+             .data[[period_col]], 
+             !!!syms(group_vars)) %>%
+    summarise(
+      across(all_of(sum_vars), ~ sum(.x == TRUE, na.rm = TRUE)),
+      across(all_of(count_vars), ~ sum(.x, na.rm = TRUE)),
+      .groups = "drop"
+    )
 }
 
 #rate calculation function
 
 add_rates <- function(df,
-                      count_vars = c("hiv_test", "declined_hiv_test", "current_prep", "declined_prep", "stopped_prep"),
+                      count_vars = c("hiv_test", "declined_hiv_test", "current_prep", "declined_prep", "stopped_prep", "extant_hiv", "new_hiv", "new_late_hiv", "sti_test", "weekly_episode_count", "sti_test_count"),
                       population_col = "population",
                       scale = 1000) {
   df %>%
@@ -43,10 +38,9 @@ add_rates <- function(df,
                   .names = "{.col}_rate"))
 }
 
-
 #set working directory
 
-setwd("YOUR WD")
+setwd(YOURWD)
 
 #load analysis dataset
 
@@ -54,10 +48,6 @@ cab <- read.csv("./subdirectory/Processed/combined_episodes.csv")
 
 #ensure type matching for date column
 cab$EventDate<- as.Date(cab$EventDate)
-
-#generate episode count
-
-cab <- episode_count(cab)
 
 #collapse to weekly count data
 
@@ -91,10 +81,9 @@ rm(pop_table, group_props)
 cab_weekly <- cab_weekly %>%
   left_join(group_pop, by = c("ethn_simple", "location"))
 
-#calculate rates per 1000 (can specify scale = to change rate)
+#calculate rates per 1000 (can specify scale = to change rate). this is by the group population
 
 cab_weekly <- add_rates(cab_weekly)
-
 
 #generate grouping variables for modelling 
 
