@@ -307,7 +307,7 @@ plot_cits(cits_Bristol,
           group_var = "group_bristol",
           groups_to_include = c("Bristol ACHC", "Bristol non ACHC"))
 
-#slope comparison Bristol ACHC vs Croydon non ACHC
+#slope comparison Bristol ACHC vs Bristol non ACHC
 plot_slope_comparison(cits_Bristol)
 
 #slope comparison Bristol ACHC v Croydon ACHC
