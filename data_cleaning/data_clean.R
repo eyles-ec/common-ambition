@@ -65,9 +65,8 @@ data_processing <- function(df, hiv_codes, sti_codes) {
       month = month(EventDate),
       week = isoweek(EventDate),
       quarter = quarter(EventDate),
-      #create week index and pre/post intervention timeline
-      week_index = (year - 2021) * 52 + week,
-      time = week_index - 68.5,
+      #create pre/post intervention timeline
+      time = as.integer(difftime(EventDate, as.Date("2022-04-25"), units = "weeks")),
       period = if_else(time > 0, 1, 0)
     )
   
@@ -183,6 +182,10 @@ croydon_hiv <- episode_count(croydon_hiv)
 unity_hiv$location <- "Bristol"
 croydon_hiv$location <- "Croydon"
 
+#sort by date
+unity_hiv <- unity_hiv %>% arrange(EventDate)
+croydon_hiv <- croydon_hiv %>% arrange(EventDate)
+
 #save intermediate step as CSV
 write.csv(unity_hiv, "./subdirectory/Processed/unity_hiv_episodes.csv")
 write.csv(croydon_hiv, "./subdirectory/Processed/croydon_hiv_episodes.csv")
@@ -190,6 +193,8 @@ write.csv(croydon_hiv, "./subdirectory/Processed/croydon_hiv_episodes.csv")
 #append datasets together to create one analytic dataset
 
 combined_data <- append_dfs(unity_hiv, croydon_hiv)
+
+combined_data <- combined_data %>% arrange(EventDate)
 
 #save combined dataset
 write.csv(combined_data, "./subdirectory/Processed/combined_episodes.csv")
