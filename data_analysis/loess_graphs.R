@@ -71,4 +71,4 @@ setwd(YOUR WD)
 cab<- read.csv("./subdirectory/Analysis/weekly_combined.csv")
 
 #call plot function
-plot_outcomes(cab_weekly, "hiv_test_rate", y_label  = "HIV test rate per 1000", plot_title = "HIV test rate by group")
+plot_outcomes(cab, "hiv_test_rate", y_label  = "HIV test rate per 1000", plot_title = "HIV test rate by group")
