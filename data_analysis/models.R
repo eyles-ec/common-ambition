@@ -19,6 +19,9 @@ library(broom)
 #this can tell us effectively the weekly % increase relative to the comparison group
 #make sure to exponentiate the coefficient to interpret it 
 
+#also restricts data to the end of Bristol data in week 140 from intervention
+
+
 fit_cits_model <- function(df, outcome_var = "hiv_test", 
                            group_var = "group_bristol", 
                            time_var = "time", 
@@ -34,6 +37,11 @@ fit_cits_model <- function(df, outcome_var = "hiv_test",
   if (fallback_family == "neg_binomial" && !requireNamespace("MASS", quietly = TRUE)) {
     stop("Package 'MASS' is required for negative binomial modeling. Please install it.")
   }
+  
+  # Exclude all data from and after the week of 31 Dec 2024 (time index 140)
+  #as no Bristol data past that point 
+  df <- df %>%
+    filter(.data[[time_var]] < 140)
   
   # Filter and factorise group variable
   df_filtered <- df %>%
@@ -97,6 +105,7 @@ fit_cits_model <- function(df, outcome_var = "hiv_test",
     family_used = family(model)$family
   ))
 }
+
 
 
 #function to generate the counterfactual (if there was no CAB)
@@ -215,13 +224,13 @@ plot_cits <- function(cits_model,
   return(p)
 }
 
-#creates a plot comparing the slopes of the two groups, up to x_end of 153.5 weeks (end of data)
+#creates a plot comparing the slopes of the two groups, up to x_end of 140 weeks (end of Bristol data)
 #this is customisable to however many weeks you desire, include calculation of slope difference
 #uses hardcoded names of the coefficients as they don't change between models, but check this each time
 
 plot_slope_comparison <- function(cits_model,
                                   group_labels = c("Bristol ACHC", "Bristol non ACHC"),
-                                  x_end = 153.5,
+                                  x_end = 140,
                                   save_plot = FALSE,
                                   filename = "./subdirectory/plots/slope_comparison.png",
                                   overwrite = FALSE,
