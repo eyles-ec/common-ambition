@@ -36,7 +36,7 @@ data_processing <- function(df, hiv_codes, sti_codes) {
   
   # HIV test flags
   df <- flag_cl(df, c("P1B", "P1C"), "declined_hiv_test")
-  df <- flag_cl(df, c("P1A", "T4", "T7", "T-HIV"), "hiv_test")
+  df <- flag_cl(df, c("P1A", "T4", "T7", "T-HIV", "S2", "RHTR", "HA12", "RHTN"), "hiv_test")
   
   # HIV diagnosis flags
   df <- flag_cl(df, c("H", "H1X", "H1AX", "H1BX"), "extant_hiv")
@@ -44,13 +44,13 @@ data_processing <- function(df, hiv_codes, sti_codes) {
   df <- flag_cl(df, "H1B", "new_late_hiv")
   
   # PrEP flags
-  df <- flag_cl(df, c("O41", "O42", "O43", "O51", "O52", "O53"), "current_prep")
-  df <- flag_cl(df, "O44", "declined_prep")
+  df <- flag_cl(df, c("O41", "O42", "O43", "O51", "O52", "O53", "O54", "PREP", "PREP3", "PREP4", "PREP1", "PREP2"), "current_prep")
+  df <- flag_cl(df, c("O44", "PREP0"), "declined_prep")
   df <- flag_cl(df, "O45", "stopped_prep")
+  df <- flag_cl(df, c("HA13", "PEPS"), "pep")
   
   # STI flag
   df <- flag_cl(df, c("T1", "T12", "T2", "T3", "T5", "T6", "TT"), "sti_test")
-  
   df <- df %>%
     mutate(
       sti_test_count = rowSums(across(starts_with("DiagCode"), ~ . %in% c("T1", "T12", "T2", "T3", "T5", "T6", "TT")))
