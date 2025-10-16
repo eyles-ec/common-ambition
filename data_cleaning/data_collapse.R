@@ -12,7 +12,7 @@ collapse_weekly <- function(df,
                             year_col = "year",
                             period_col = "period",
                             group_vars = c("ethn_simple", "location"),
-                            sum_vars = c("hiv_test", "declined_hiv_test", "current_prep", "declined_prep", "stopped_prep", "extant_hiv", "new_hiv", "new_late_hiv", "sti_test"),
+                            sum_vars = c("hiv_test", "declined_hiv_test", "current_prep", "declined_prep", "stopped_prep", "extant_hiv", "new_hiv", "new_late_hiv", "sti_test", "pep"),
                             count_vars = c("weekly_episode_count", "sti_test_count")) {
   df %>%
     group_by(.data[[year_col]], 
