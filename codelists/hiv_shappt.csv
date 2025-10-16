@@ -1,33 +1,47 @@
-﻿code,diag_find_test
-D3,Other Sexual Health and HIV Episodes  not requiring treatment
-H,HIV positive - Previously Diagnosed
-H1,New HIV diagnosis
-H1A,New HIV diagnosis: Acute
-H1A,H1A - New HIV diagnosis: acute
-H1AX,New HIV diagnosis: acute - previously diagnosed elsewhere
-H1B,New HIV diagnosis: Late infection (AIDS defined)
-H1B,H1B - HIV diagnosis: late (AIDS defined)
-H1BX,New HIV diagnosis: late (AIDS defined) - previously diagnosed elsewhere
-H1X,New HIV diagnosis - previously diagnosed elsewhere
-H2,Attendance for HIV-related care
-O32,PrEP eligibility criteria 2: HIV positive partner
-P1A,Human Immunodeficiency Virus (HIV) antibody test (no sexual health screen)
-P1B,Human Immunodeficiency Virus (HIV) antibody test offered and refused
-P1C,HIV test inappropriate
-PNH,Partner notification related attendance: HIV contact
-O31,PrEP eligibility criteria 1: MSM/transgender woman
-O32,PrEP eligibility criteria 2: HIV positive partner
-O33,PrEP eligibility criteria 3: Other high risk
-O41,PrEP regimen: Starting or continuing daily Prep
-O42,PrEP regimen: Starting or continuing event based Prep
-O43,PrEP regimen: Continued through other source
-O44,PrEP regimen: Offered and declined
-O45,PrEP regimen: Stopped
-O51,PrEP prescription: 30 tablets
-O52,PrEP prescription: 60 tablets
-O53,PrEP prescription: 90 tablets
-O60,PrEP patient characteristic: Transgender
-T10,Rapid testing (STI and/or HIV)
-T4,"Chlamydia, gonnorrhoea, syphilis and HIV antibody tests"
-T7,Syphilis and HIV Testing
-T-HIV,HIV Screening Test Made
+﻿code,diag_find_test,type
+D3,Other Sexual Health and HIV Episodes  not requiring treatment,HIV
+H,HIV positive - Previously Diagnosed,HIV
+H1,New HIV diagnosis,HIV
+H1A,New HIV diagnosis: Acute,HIV
+H1A,H1A - New HIV diagnosis: acute,HIV
+H1AX,New HIV diagnosis: acute - previously diagnosed elsewhere,HIV
+H1B,New HIV diagnosis: Late infection (AIDS defined),HIV
+H1B,H1B - HIV diagnosis: late (AIDS defined),HIV
+H1BX,New HIV diagnosis: late (AIDS defined) - previously diagnosed elsewhere,HIV
+H1X,New HIV diagnosis - previously diagnosed elsewhere,HIV
+H2,Attendance for HIV-related care,HIV
+O32,PrEP eligibility criteria 2: HIV positive partner,HIV
+P1A,Human Immunodeficiency Virus (HIV) antibody test (no sexual health screen),HIV
+P1B,Human Immunodeficiency Virus (HIV) antibody test offered and refused,HIV
+P1C,HIV test inappropriate,HIV
+PNH,Partner notification related attendance: HIV contact,HIV
+O31,PrEP eligibility criteria 1: MSM/transgender woman,HIV
+O32,PrEP eligibility criteria 2: HIV positive partner,HIV
+O33,PrEP eligibility criteria 3: Other high risk,HIV
+O41,PrEP regimen: Starting or continuing daily Prep,HIV
+O42,PrEP regimen: Starting or continuing event based Prep,HIV
+O43,PrEP regimen: Continued through other source,HIV
+O44,PrEP regimen: Offered and declined,HIV
+O45,PrEP regimen: Stopped,HIV
+O51,PrEP prescription: 30 tablets,HIV
+O52,PrEP prescription: 60 tablets,HIV
+O53,PrEP prescription: 90 tablets,HIV
+O60,PrEP patient characteristic: Transgender,HIV
+T10,Rapid testing (STI and/or HIV),HIV
+T4,"Chlamydia, gonnorrhoea, syphilis and HIV antibody tests",HIV
+T7,Syphilis and HIV Testing,HIV
+T-HIV,HIV Screening Test Made,HIV
+RHTR,Rapid HIV Test reactive,HIV
+S2,HIV antibody test and sexual health screen,HIV
+HA13,HA only PEP,HIV
+PREP3,Starting new course of PREP,HIV
+PREP3,PrEP stopped since last attendance,HIV
+PREP4,Continuing PrEP,HIV
+PREP0,Offered new course PrEP but declined,HIV
+O54,PrEP prescription: 180 tablets,HIV
+PREP,PrEP activity recorded ,HIV
+HA12,HA ONLY HIV POCT done by HA,HIV
+PEPS,PEP after sexual exposure,HIV
+PREP1,Starting new course of PrEP today,HIV
+RHTN,Rapid HIV test neg,HIV
+PREP2 ,Currently using PrEP at this attendance,HIV
