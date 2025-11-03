@@ -25,7 +25,7 @@ The following outcomes are to be analysed as weekly counts, using Poisson or neg
 - HIV tests
 - HIV diagnosis
 - PrEP prescriptions
-- Episodse of care to assess general use of sexual health services
+- Episodes of care to assess general use of sexual health services
 - STI tests for any infection to assess STI testing incidence 
 
 Bristol ACHC are compared to Bristol non-ACHC and also, separately, Croydon ACHC. Population offsets are calculated in order to make it possible to compare rates between the main and control series. 
