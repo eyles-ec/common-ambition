@@ -230,10 +230,10 @@ plot_cits <- function(cits_model,
   return(p)
 }
 
-
 #creates a plot comparing the slopes of the two groups, up to x_end of 140 weeks (end of Bristol data)
 #this is customisable to however many weeks you desire, include calculation of slope difference
 #uses hardcoded names of the coefficients as they don't change between models, but check this each time
+#however it does not reflect any of the other predicted values. 
 
 
 plot_slope_comparison <- function(cits_model,
@@ -389,15 +389,17 @@ for (outcome_name in names(outcomes)) {
     )
     print(p1)
     
-    p2 <- plot_slope_comparison(
-      cits,
-      outcome_label = specification$label,
-      group_labels = comparison$groups,
-      save_plot = save_plots,
-      filename  = paste0("./Analysis/plots/newslope_",
-                         comparison_name, "_", outcome_name, ".png")
-    )
-    print(p2)
+    
+    
+    #p2 <- plot_slope_comparison(
+      #cits,
+      #outcome_label = specification$label,
+      #group_labels = comparison$groups,
+      #save_plot = save_plots,
+      #filename  = paste0("./Analysis/plots/newslope_",
+       #                  comparison_name, "_", outcome_name, ".png")
+    #)
+    #print(p2)
     
     # tidy and save model specs 
     tidy_df <- broom::tidy(cits$model)
