@@ -176,6 +176,8 @@ generate_counterfactual <- function(df, model,
 #height and width are in inches by default 
 
 plot_cits <- function(cits_model,
+                      outcome_var = "hiv_test",        # NEW: outcome column
+                      outcome_label = "HIV tests",     # NEW: label for plot
                       group_var = "group_bristol",
                       groups_to_include = c("Bristol ACHC", "Bristol non ACHC"),
                       save_plot = FALSE,
@@ -184,6 +186,7 @@ plot_cits <- function(cits_model,
                       width = 10,
                       height = 6,
                       dpi = 300) {
+  
   df_plot <- cits_model$data
   
   # Dynamically extract the group variable
@@ -196,7 +199,7 @@ plot_cits <- function(cits_model,
     filter(group == "Bristol ACHC", !is.na(cf))
   
   # Build plot
-  p <- ggplot(df_plot, aes(x = time, y = hiv_test, color = group)) +
+  p <- ggplot(df_plot, aes(x = time, y = .data[[outcome_var]], color = group)) +
     geom_point(alpha = 0.5) +
     geom_ribbon(aes(ymin = yhat_lower, ymax = yhat_upper, fill = group),
                 alpha = 0.2, color = NA) +
@@ -205,10 +208,10 @@ plot_cits <- function(cits_model,
               aes(y = cf), linetype = "dotted", color = "grey40", size = 1) +
     geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
     labs(
-      title = "Observed vs Predicted HIV Tests Over Time",
+      title = paste("Observed vs Predicted", outcome_label, "Over Time"),
       subtitle = "Dashed line = CAB interventions (Week of April 25, 2022)\nDotted line = counterfactual prediction for Bristol ACHC",
       x = "Weeks Since Intervention",
-      y = "HIV Tests",
+      y = outcome_label,
       color = "Group",
       fill = "Group"
     ) +
@@ -227,11 +230,14 @@ plot_cits <- function(cits_model,
   return(p)
 }
 
+
 #creates a plot comparing the slopes of the two groups, up to x_end of 140 weeks (end of Bristol data)
 #this is customisable to however many weeks you desire, include calculation of slope difference
 #uses hardcoded names of the coefficients as they don't change between models, but check this each time
 
+
 plot_slope_comparison <- function(cits_model,
+                                  outcome_label = "HIV tests",     # NEW: single argument used everywhere
                                   group_labels = c("Bristol ACHC", "Bristol non ACHC"),
                                   x_end = 140,
                                   save_plot = FALSE,
@@ -270,9 +276,14 @@ plot_slope_comparison <- function(cits_model,
              hjust = 1, size = 4, color = "black") +
     labs(
       title = "Post-Intervention Slope Comparison",
-      subtitle = "Each line shows the estimated increase in HIV tests over time since the intervention.\nY-axis reflects total additional HIV tests, not the weekly rate.",
+      subtitle = paste0(
+        "Each line shows the estimated increase in ", outcome_label,
+        " over time since the intervention.\n",
+        "Y-axis reflects total additional ", outcome_label,
+        ", not the weekly rate."
+      ),
       x = "Weeks Since Intervention",
-      y = "Estimated Additional HIV Tests",
+      y = paste("Estimated Additional", outcome_label),
       color = "Group"
     ) +
     theme_minimal()
@@ -293,44 +304,117 @@ plot_slope_comparison <- function(cits_model,
 setwd(YOURWD)
 
 #load analysis dataset
-cab<- read.csv("./subdirectory/Analysis/weekly_combined.csv")
+cab<- read.csv("./Analysis/weekly_combined.csv")
 
-#analyse hiv tests for Bristol ACHC versus Bristol non ACHC (default option of cits modelling)
-cits_Bristol <- fit_cits_model(cab) 
-cits_Croydon <- fit_cits_model(cab, groups_to_include = c("Bristol ACHC", "Croydon ACHC"), reference_group = "Croydon ACHC")
+#define outcomes
 
-#generate counterfactuals for each 
-cf_Bristol <- generate_counterfactual(df = cits_Bristol$data, model = cits_Bristol$model)
-cf_Croydon <- generate_counterfactual(df = cits_Croydon$data, model = cits_Croydon$model)
+outcomes <- list(
+  hiv_test = list(
+    outcome_var = "hiv_test",
+    label = "HIV tests"
+  ),
+  new_hiv = list(
+    outcome_var = "new_hiv",
+    label = "New HIV diagnoses"
+  ),
+  sti_test_count = list(
+    outcome_var = "sti_test_count",
+    label = "STI tests"
+  ),
+  weekly_episode_count = list(
+    outcome_var = "weekly_episode_count",
+    label = "Weekly episodes"
+  )
+)
 
-#add counterfactual info to main list
-cits_Bristol$data <- cf_Bristol$data
-cits_Bristol$summary_table <- cf_Bristol$summary_table
-cits_Croydon$data <- cf_Croydon$data
-cits_Croydon$summary_table <- cf_Croydon$summary_table
+#comparisons 
+comparisons <- list(
+  bristol_within = list(
+    groups = c("Bristol ACHC", "Bristol non ACHC"),
+    ref = "Bristol non ACHC"
+  ),
+  bristol_vs_croydon = list(
+    groups = c("Bristol ACHC", "Croydon ACHC"),
+    ref = "Croydon ACHC"
+  )
+)
 
-# Bristol ACHC vs Croydon ACHC
-plot_cits(cits_Croydon,
-          group_var = "group_bristol",
-          groups_to_include = c("Bristol ACHC", "Croydon ACHC"))
+# output folders creation
+dir.create("./Analysis/results", recursive = TRUE, showWarnings = FALSE)
+dir.create("./Analysis/plots",   recursive = TRUE, showWarnings = FALSE)
 
-# Bristol ACHC vs non-ACHC
-plot_cits(cits_Bristol,
-          group_var = "group_bristol",
-          groups_to_include = c("Bristol ACHC", "Bristol non ACHC"))
+# TRUE to save plots as PNGs through your plotting functions (false if unneeded)
+save_plots <- TRUE
 
-#slope comparison Bristol ACHC vs Bristol non ACHC
-plot_slope_comparison(cits_Bristol)
+# Store outputs here
+results <- list()
 
-#slope comparison Bristol ACHC v Croydon ACHC
-plot_slope_comparison(cits_Croydon, group_labels = c("Bristol ACHC", "Croydon ACHC"))
+#run it in a loop for easy changes to outcomes etc
+for (outcome_name in names(outcomes)) {
+  specification <- outcomes[[outcome_name]]
+  
+  for (comparison_name in names(comparisons)) {
+    comparison <- comparisons[[comparison_name]]
+    
+    message("Processing: ", outcome_name, " — ", comparison_name)
+    
+    # Fit the CITs model
+    cits <- fit_cits_model(
+      df = cab,
+      outcome_var = specification$outcome_var,
+      groups_to_include = comparison$groups,
+      reference_group = comparison$ref
+    )
+    
+    # Generate counterfactuals and attach back to object
+    cf <- generate_counterfactual(df = cits$data, model = cits$model)
+    cits$data <- cf$data
+    cits$summary_table <- cf$summary_table
+    
+    # Store in nested list: results[[outcome]][[comparison]]
+    if (!outcome_name %in% names(results)) results[[outcome_name]] <- list()
+    results[[outcome_name]][[comparison_name]] <- cits
+    
+    #create and save plots (CITS and slope comparison)
+    #plots are also printed 
+    p1 <- plot_cits(
+      cits,
+      outcome_var = specification$outcome_var,
+      outcome_label = specification$label,
+      group_var = "group_bristol",
+      groups_to_include = comparison$groups,
+      save_plot = save_plots,
+      filename  = paste0("./Analysis/plots/newcits_",
+                         comparison_name, "_", outcome_name, ".png")
+    )
+    print(p1)
+    
+    p2 <- plot_slope_comparison(
+      cits,
+      outcome_label = specification$label,
+      group_labels = comparison$groups,
+      save_plot = save_plots,
+      filename  = paste0("./Analysis/plots/newslope_",
+                         comparison_name, "_", outcome_name, ".png")
+    )
+    print(p2)
+    
+    # tidy and save model specs 
+    tidy_df <- broom::tidy(cits$model)
+    write.csv(
+      tidy_df,
+      paste0("./Analysis/results/newcits_", comparison_name, "_",
+             outcome_name, "_model.csv"),
+      row.names = FALSE
+    )
+    
+    write.csv(
+      cits$summary_table,
+      paste0("./Analysis/results/newcits_", comparison_name, "_",
+             outcome_name, "_summary.csv"),
+      row.names = FALSE
+    )
+  }
+}
 
-#save model specifications
-tidy_bristol <- tidy(cits_Bristol$model)
-write.csv(tidy_bristol, "./subdirectory/results/cits_bristol_model.csv", row.names = FALSE)
-tidy_croydon <- tidy(cits_Croydon$model)
-write.csv(tidy_croydon, "./subdirectory/results/cits_croydon_model.csv", row.names = FALSE)
 
-#save summary files Bristol and Croydon
-write.csv(cits_Bristol$summary_table, "./subdirectory/results/cits_bristol_summary.csv", row.names = FALSE)
-write.csv(cits_Croydon$summary_table, "./subdirectory/results/cits_croydon_summary.csv", row.names = FALSE)
