@@ -455,8 +455,8 @@ comparisons <- list(
 )
 
 # output folders creation
-dir.create("./Analysis/results3", recursive = TRUE, showWarnings = FALSE)
-dir.create("./Analysis/plots3",   recursive = TRUE, showWarnings = FALSE)
+dir.create("./Analysis/results", recursive = TRUE, showWarnings = FALSE)
+dir.create("./Analysis/plots",   recursive = TRUE, showWarnings = FALSE)
 
 # # TRUE to save plots as PNGs through your plotting functions (false if unneeded)
 # save_plots <- TRUE
