@@ -208,13 +208,34 @@ generate_counterfactual <- function(df, model,
   
   #generate variance-covariance matrix using Newey West technique,
   #which is more robust for autocorrelation present in data. (default for this is 4 weeks)
-  V_full <- sandwich::NeweyWest(model, lag = nw_lag,
-                                prewhite = TRUE,
-                                adjust   = TRUE)
+  #For some outcomes, AR1 prewhitening does not work, so we wrap it in a tryCatch, which allows
+  #us to automatically fallback to not using prewhitening. 
+  #define two simple functions
+  vcov_try_1 <- function() {
+    sandwich::NeweyWest(model, lag = nw_lag, prewhite = TRUE, adjust = TRUE)
+    
+  } 
+  vcov_try_2 <- function() {
+    sandwich::NeweyWest(model, lag = nw_lag, prewhite = FALSE, adjust = TRUE)
+  }
   
-  #put lag into a vector to summarise later
-  vcov_used <- paste0("NW_lag_", nw_lag)
+  #calculate variance covariance matrix - > if prewhitening doesn't work, automatically move on
+  V_full <- tryCatch(vcov_try_1(), error = function(e1) {
+    message("NeweyWest (prewhite=TRUE) failed: ", conditionMessage(e1),
+            " -> Trying prewhite=FALSE")
+    tryCatch(vcov_try_2(), error = function(e2) {
+      stop("Both prewhite=TRUE and prewhite=FALSE NeweyWest() failed:\n",
+           conditionMessage(e2))
+    })
+  })
   
+  #repeat to get labels (probably there's a better way to do this..), running the same quietly
+    vcov_used <- tryCatch({
+    invisible(vcov_try_1()); paste0("NW_lag_", nw_lag, "_prewhite_TRUE")
+  }, error = function(e1) {
+    paste0("NW_lag_", nw_lag, "_prewhite_FALSE")
+  })
+    
   #collect model coefficients
   beta_full <- stats::coef(model)
   
@@ -447,6 +468,10 @@ outcomes <- list(
     outcome_var = "new_hiv",
     label = "New HIV diagnoses"
   ),
+  declined_hiv_test = list(
+    outcome_var = "declined_hiv_test",
+    label = "Declined HIV test"
+  ),
   sti_test_count = list(
     outcome_var = "sti_test_count",
     label = "STI tests"
@@ -461,7 +486,7 @@ outcomes <- list(
   )
 )
 
-#comparisons 
+#define comparisons 
 comparisons <- list(
   bristol_within = list(
     groups = c("Bristol ACHC", "Bristol non ACHC"),
@@ -473,12 +498,12 @@ comparisons <- list(
   )
 )
 
-# output folders creation
+#create output folders
 dir.create("./Analysis/results", recursive = TRUE, showWarnings = FALSE)
 dir.create("./Analysis/plots",   recursive = TRUE, showWarnings = FALSE)
 
-# # TRUE to save plots as PNGs through your plotting functions (false if unneeded)
-# save_plots <- TRUE
+# TRUE to save plots as PNGs through your plotting functions (false if unneeded)
+save_plots <- TRUE
 
 # Store outputs here
 results <- list()
