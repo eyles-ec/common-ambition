@@ -49,11 +49,13 @@ check_matches <- function(df, include_keywords, exclude_keywords = NULL, flag_na
 }
 
 
-#set working directory
+#collect paths - save your own paths to a file called paths.R that is ignored by git (.gitignore) 
 
-setwd("YOUR WD")
+source("../paths.R")
 
-#load analysis dataset
+#set working directory 
+
+setwd(wd)
 
 cab <- read.csv("./Processed/combined_episodes.csv")
 

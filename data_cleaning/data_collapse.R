@@ -38,9 +38,13 @@ add_rates <- function(df,
                   .names = "{.col}_rate"))
 }
 
-#set working directory
+#collect paths - save your own paths to a file called paths.R that is ignored by git (.gitignore) 
 
-setwd(YOURWD)
+source("../paths.R")
+
+#set working directory 
+
+setwd(wd)
 
 #load analysis dataset
 
@@ -102,4 +106,4 @@ cab_weekly <- cab_weekly %>%
   )
 
 #export weekly data 
-write.csv(cab_weekly, "./subdirectory/Analysis/weekly_combined.csv")
+write.csv(cab_weekly, "./Analysis/weekly_combined.csv")

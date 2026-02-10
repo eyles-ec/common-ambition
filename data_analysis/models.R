@@ -425,8 +425,13 @@ plot_cits <- function(cits_model,
   return(p)
 }
 
-#set working directory
-setwd(YOURWD)
+#collect paths - save your own paths to a file called paths.R that is ignored by git (.gitignore) 
+
+source("../paths.R")
+
+#set working directory 
+
+setwd(wd)
 
 #load analysis dataset
 cab<- read.csv("./Analysis/weekly_combined.csv")

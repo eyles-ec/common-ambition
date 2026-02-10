@@ -64,11 +64,17 @@ plot_outcomes <- function(df, outcome_var,
   return(p)
 }
 
-#set working directory
-setwd(YOUR WD)
+#collect paths - save your own paths to a file called paths.R that is ignored by git (.gitignore) 
+
+source("../paths.R")
+
+#set working directory 
+
+setwd(wd)
 
 #load analysis dataset
-cab<- read.csv("./subdirectory/Analysis/weekly_combined.csv")
+cab<- read.csv("./Analysis/weekly_combined.csv")
+
 
 #call plot function
-plot_outcomes(cab, "hiv_test_rate", y_label  = "HIV test rate per 1000", plot_title = "HIV test rate by group")
+plot_outcomes(cab[cab$location == "Bristol",], "new_hiv_rate", y_label  = "Weekly episode rate per 1000", plot_title = "Weekly episode rate by group")

@@ -144,18 +144,22 @@ append_dfs <- function(..., master_index = 1) {
 }
 
 
-#set working directory
+#collect paths - save your own paths to a file called paths.R that is ignored by git (.gitignore) 
 
-setwd(YOUR WD)
+source("../paths.R")
+
+#set working directory 
+
+setwd(wd)
 
 #load datasets
 
-unity_cab1 <- read.csv("./subdirectory/unity.csv")
-croydon_cab1 <- read.csv("./subdirectory/croydon.csv")
-ck_cab1 <- read.csv("./subdirectory/CK_csv.csv")
+unity_cab1 <- read.csv("./RawData/unity.csv")
+croydon_cab1 <- read.csv("./RawData/croydon.csv")
+ck_cab1 <- read.csv("./RawData/CK_csv.csv")
 
-unity_cab2 <- read.csv("./subdirectory/unity.csv")
-croydon_cab2 <- read.csv("./subdirectory/croydon.csv")
+unity_cab2 <- read.csv("./RawData_CAB2/unity.csv")
+croydon_cab2 <- read.csv("./RawData_CAB2/croydon.csv")
 
 #append datasets using append_data function
 
@@ -167,8 +171,8 @@ croydon <- append_dfs(croydon_cab1, croydon_cab2)
 
 #load shappt reference codes for HIV and PrEP
 
-hiv_filter <- read.csv("./subdirectory/codelists/hiv_shappt.csv")
-sti_filter <- read.csv("./subdirectory/codelists/sti_shappt.csv")
+hiv_filter <- read.csv("./Analysis/codelists/hiv_shappt.csv")
+sti_filter <- read.csv("./Analysis/codelists/sti_shappt.csv")
 
 #use data_processing function to process croydon and unity datasets
 unity_hiv <- data_processing(unity, hiv_filter$code, sti_filter$code)
@@ -187,8 +191,8 @@ unity_hiv <- unity_hiv %>% arrange(EventDate)
 croydon_hiv <- croydon_hiv %>% arrange(EventDate)
 
 #save intermediate step as CSV
-write.csv(unity_hiv, "./subdirectory/Processed/unity_hiv_episodes.csv")
-write.csv(croydon_hiv, "./subdirectory/Processed/croydon_hiv_episodes.csv")
+write.csv(unity_hiv, "./Analysis/Processed/unity_hiv_episodes.csv")
+write.csv(croydon_hiv, "./Analysis/Processed/croydon_hiv_episodes.csv")
 
 #append datasets together to create one analytic dataset
 
@@ -197,5 +201,5 @@ combined_data <- append_dfs(unity_hiv, croydon_hiv)
 combined_data <- combined_data %>% arrange(EventDate)
 
 #save combined dataset
-write.csv(combined_data, "./subdirectory/Processed/combined_episodes.csv")
+write.csv(combined_data, "./Analysis/Processed/combined_episodes.csv")
 
