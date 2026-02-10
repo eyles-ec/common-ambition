@@ -400,7 +400,7 @@ plot_cits <- function(cits_model,
                 alpha = 0.2, color = NA) +
     geom_line(aes(y = yhat), size = 1.2) +
     geom_line(data = cf_data,
-              aes(y = cf), linetype = "dotted", color = "grey40", size = 1) +
+              aes(y = cf), linetype = "solid", color = "grey40", size = 1) +
     geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
     labs(
       title = paste("Observed vs Predicted", outcome_label, "Over Time"),
