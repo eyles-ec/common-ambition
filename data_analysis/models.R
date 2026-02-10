@@ -125,8 +125,6 @@ generate_counterfactual <- function(df, model,
                                     period_var  = "period",
                                     level       = 0.95,
                                     nw_lag    = 4,
-                                    prewhite  = TRUE,
-                                    adjust    = TRUE,
                                     summary = TRUE) {
   
   #check arguments and columns since we are doing multiple outcomes/comparisons
@@ -207,8 +205,8 @@ generate_counterfactual <- function(df, model,
   #generate variance-covariance matrix using Newey West technique,
   #which is more robust for autocorrelation present in data. (default for this is 4 weeks)
   V_full <- sandwich::NeweyWest(model, lag = nw_lag,
-                                prewhite = prewhite,
-                                adjust   = adjust)
+                                prewhite = TRUE,
+                                adjust   = TRUE)
   vcov_used <- paste0("NW_lag_", nw_lag)
   
   beta_full <- stats::coef(model)
