@@ -155,6 +155,7 @@ generate_counterfactual <- function(df, model,
     dplyr::filter(.data[[group_var]] == group_name,
                   .data[[period_var]] == 1)
   
+  #output if there's no post rows (unlikely, but just in case)
   if (nrow(post) == 0) {
     out0 <- list(
       data = df2 |> dplyr::select(-.row_id),
@@ -164,7 +165,7 @@ generate_counterfactual <- function(df, model,
       ),
       cf_data = post
     )
-    if (glimpse_summary) dplyr::glimpse(out0$summary_table)
+    if (summary) dplyr::glimpse(out0$summary_table)
     return(out0)
   }
   
@@ -172,10 +173,10 @@ generate_counterfactual <- function(df, model,
   offset_vec <- compute_offset(model, post)
   
   #Model matrices (aligned with coefficients), in order to calculate counterfactuals
-  tt <- stats::delete.response(stats::terms(model))
-  X  <- stats::model.matrix(tt, post)
+  tt <- stats::delete.response(stats::terms(model)) #term names
+  X  <- stats::model.matrix(tt, post) #design matrix
   
-  #Generate counterfactual design matrix, e.g. 
+  #Generate counterfactual matrix, e.g. 
   #What would Bristol ACHC look like post-CAB if they followed the same post change
   #as the other group + common effects, without the Bristol ACHC specific trend
   # Keep post-period rows, but remove the treated group's post differential:
@@ -183,13 +184,15 @@ generate_counterfactual <- function(df, model,
   # 2) Bristol ACHC group slope change in post: time:group:period
   X_cf <- X
   
+  #collect field names
   group_token <- paste0(group_var, group_name)
   col_level_diff <- paste0(group_token, ":", period_var)
   col_slope_diff <- paste0(time_var, ":", group_token, ":", period_var)
   
+  #treated group's post differential
   cols_to_zero <- c(col_level_diff, col_slope_diff)
   
-  #check for missing columns in case of error with names
+  #check for missing columns in case of error with names, throw error up
   missing_cols2 <- setdiff(cols_to_zero, colnames(X_cf))
   if (length(missing_cols2) > 0) {
     stop(
@@ -200,6 +203,7 @@ generate_counterfactual <- function(df, model,
     )
   }
   
+  #remove Bristol ACHC trend from counterfactual model matrix
   X_cf[, cols_to_zero] <- 0
   
   #generate variance-covariance matrix using Newey West technique,
@@ -207,29 +211,35 @@ generate_counterfactual <- function(df, model,
   V_full <- sandwich::NeweyWest(model, lag = nw_lag,
                                 prewhite = TRUE,
                                 adjust   = TRUE)
+  
+  #put lag into a vector to summarise later
   vcov_used <- paste0("NW_lag_", nw_lag)
   
+  #collect model coefficients
   beta_full <- stats::coef(model)
   
-  #ensure all the columns match between the cf and the vcov matrix
+  #ensure all the columns match between the cf and the vcov matrix via intersect
   common <- intersect(colnames(X), names(beta_full))
   common <- intersect(common, rownames(V_full))
   
-  X    <- X[, common, drop = FALSE]
-  X_cf <- X_cf[, common, drop = FALSE]
-  beta <- beta_full[common]
-  V2   <- V_full[common, common, drop = FALSE]
+  #keep the common columns to ensure the matrices match 
+  X    <- X[, common, drop = FALSE] #design matrix
+  X_cf <- X_cf[, common, drop = FALSE] #counterfactual matrix
+  beta <- beta_full[common] #coefficients from model
+  V2   <- V_full[common, common, drop = FALSE] #variance-covariance matrix 
   
   #including the offset, calculate the mean and counterfacual mean
   #exponentiated due to model output
-  eta_hat_post <- as.numeric(X %*% beta) + offset_vec
-  yhat_post    <- exp(eta_hat_post)
+  #again, CF is what would Bristol ACHC have looked like post-CAB if CAB hadn't happened,
+  #but the common post effect, monthly dummies, and baseline trends still happened (e.g. other group)
+  eta_hat_post <- as.numeric(X %*% beta) + offset_vec #linear predictor from model
+  yhat_post    <- exp(eta_hat_post) 
   
-  eta_cf_post <- as.numeric(X_cf %*% beta) + offset_vec
+  eta_cf_post <- as.numeric(X_cf %*% beta) + offset_vec #counterfactual linear predictor
   cf_post     <- exp(eta_cf_post)
   
-  y_obs      <- post[[outcome_var]]
-  weeks_post <- nrow(post)
+  y_obs      <- post[[outcome_var]] #extract observed counts
+  weeks_post <- nrow(post) #used for calculating annualised/weekly differences
   
   #calculate totals for summary table 
   total_observed       <- sum(y_obs, na.rm = TRUE)
@@ -239,6 +249,8 @@ generate_counterfactual <- function(df, model,
   total_predicted  <- sum(yhat_post, na.rm = TRUE)
   total_pred_diff  <- total_predicted - total_counterfactual
   
+  #calculate percent/annualised/weekly differences
+  #if/else structure avoids division by 0 and breaking the code
   percent_increase   <- if (total_counterfactual > 0) 100 * total_difference / total_counterfactual else NA_real_
   pred_perc_increase <- if (total_counterfactual > 0) 100 * total_pred_diff / total_counterfactual else NA_real_
   
@@ -246,19 +258,22 @@ generate_counterfactual <- function(df, model,
   average_weekly_difference <- if (weeks_post > 0) total_difference / weeks_post else NA_real_
   
   #use delta method to calculate slopes with matrix crossproducts
+  #for reference https://doi.org/10.1111/1475-6773.12122
   g_cf   <- as.numeric(crossprod(X_cf, cf_post))    # d sum(cf) / d beta
   g_pred <- as.numeric(crossprod(X,    yhat_post))  # d sum(pred) / d beta
   
+  #use the crossproducts to calculate standard errors 
   se_total_cf   <- sqrt(drop(t(g_cf)   %*% V2 %*% g_cf))
   se_total_pred <- sqrt(drop(t(g_pred) %*% V2 %*% g_pred))
   
-  #observed total is non-random, so the uncertainty comes from modelled counterfactual
+  #observed total is non-random, so the se comes from modelled counterfactual
   se_total_diff <- se_total_cf
   
+  #predicted difference se (using matrix crossproducts)
   g_pred_diff <- g_pred - g_cf
   se_total_pred_diff <- sqrt(drop(t(g_pred_diff) %*% V2 %*% g_pred_diff))
   
-  #the percent increase depends on the counterfactual 
+  #the se of percent increase depends on the counterfactual, using similar if/else logic to the annualised/weekly
   if (is.finite(total_counterfactual) && total_counterfactual > 0) {
     g_percent_inc <- 100 * (-total_observed / (total_counterfactual^2)) * g_cf
     se_percent_inc <- sqrt(drop(t(g_percent_inc) %*% V2 %*% g_percent_inc))
@@ -271,16 +286,17 @@ generate_counterfactual <- function(df, model,
     se_pred_percent_inc <- NA_real_
   }
   
+  #logic as above, for se (avoids dividing by 0)
   se_annualised_diff <- if (weeks_post > 0) se_total_diff * 52 / weeks_post else NA_real_
   se_avg_weekly_diff <- if (weeks_post > 0) se_total_diff / weeks_post else NA_real_
   
-  #mini helper function to calculate cis for everything
+  #mini helper function to calculate cis for everything, with error catching for possible induced NAs above
   ci <- function(est, se, lower_bound = -Inf) {
     if (!is.finite(est) || !is.finite(se)) return(c(NA_real_, NA_real_))
     c(max(lower_bound, est - z * se), est + z * se)
   }
   
-  #generate cis fof cf, differences, etc. 
+  #generate cis for cf, differences, etc. 
   ci_total_cf        <- ci(total_counterfactual, se_total_cf, lower_bound = 0)
   ci_total_diff      <- ci(total_difference, se_total_diff)
   ci_total_pred      <- ci(total_predicted, se_total_pred, lower_bound = 0)
