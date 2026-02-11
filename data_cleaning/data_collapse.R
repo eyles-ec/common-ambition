@@ -12,8 +12,8 @@ collapse_weekly <- function(df,
                             year_col = "year",
                             period_col = "period",
                             group_vars = c("ethn_simple", "location"),
-                            sum_vars = c("hiv_test", "declined_hiv_test", "current_prep", "declined_prep", "stopped_prep", "extant_hiv", "new_hiv", "new_late_hiv", "sti_test", "pep"),
-                            count_vars = c("weekly_episode_count", "sti_test_count")) {
+                            sum_vars = c("hiv_test", "declined_hiv_test", "current_prep", "declined_prep", "stopped_prep", "extant_hiv", "new_hiv", "new_late_hiv", "sti_test_no_hiv", "sti_test_hiv", "pep"),
+                            count_vars = c("weekly_episode_count", "sti_test_count_no_hiv", "sti_test_count_hiv")) {
   df %>%
     group_by(.data[[year_col]], 
              .data[[time_col]], 
@@ -29,7 +29,7 @@ collapse_weekly <- function(df,
 #rate calculation function
 
 add_rates <- function(df,
-                      count_vars = c("hiv_test", "declined_hiv_test", "current_prep", "declined_prep", "stopped_prep", "extant_hiv", "new_hiv", "new_late_hiv", "sti_test", "weekly_episode_count", "sti_test_count"),
+                      count_vars = c("hiv_test", "declined_hiv_test", "current_prep", "declined_prep", "stopped_prep", "extant_hiv", "new_hiv", "new_late_hiv", "sti_test_no_hiv", "sti_test_hiv", "pep", "weekly_episode_count", "sti_test_count_no_hiv", "sti_test_count_hiv"),
                       population_col = "population",
                       scale = 1000) {
   df %>%
@@ -48,7 +48,7 @@ setwd(wd)
 
 #load analysis dataset
 
-cab <- read.csv("./subdirectory/Processed/combined_episodes.csv")
+cab <- read.csv("./Processed/combined_episodes.csv")
 
 #ensure type matching for date column
 cab$EventDate<- as.Date(cab$EventDate)
