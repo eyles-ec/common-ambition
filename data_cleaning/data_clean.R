@@ -16,15 +16,16 @@ flag_cl <- function(df, code_list, new_col_name = "has_any_code") {
 
 #function for cleaning the data and creating filters
 data_processing <- function(df, hiv_codes, sti_codes) {
-  # add a flag for whether an episode includes hiv diagnosis, hiv testing and/or prep or sti testing
+  #add a flag for whether an episode includes hiv diagnosis, hiv testing and/or prep or sti testing
   df <- df %>%
     mutate(
       is_hiv = if_any(starts_with("DiagCode"), ~ . %in% hiv_codes),
-      is_sti = if_any(starts_with("DiagCode"), ~ . %in% sti_codes)
+      is_sti = if_any(starts_with("DiagCode"), ~ . %in% sti_codes),
+      is_sti_hiv = is_sti | is_hiv
     ) 
   
-  # Simplified ethnicity
-  # This includes two and one digit ethnicity codes 
+  #Simplified ethnicity
+  #This includes two and one digit ethnicity codes 
   df <- df %>%
     mutate(
       ethn_simple = case_when(
@@ -49,11 +50,18 @@ data_processing <- function(df, hiv_codes, sti_codes) {
   df <- flag_cl(df, "O45", "stopped_prep")
   df <- flag_cl(df, c("HA13", "PEPS"), "pep")
   
-  # STI flag
-  df <- flag_cl(df, c("T1", "T12", "T2", "T3", "T5", "T6", "TT"), "sti_test")
+  #STI flag with HIV, plus count
+  df <- flag_cl(df, c("T1", "T12", "T2", "T3", "T5", "T6", "TT", "P1A", "T4", "T7", "T-HIV", "S2", "RHTR", "HA12", "RHTN"), "sti_test_hiv")
   df <- df %>%
     mutate(
-      sti_test_count = rowSums(across(starts_with("DiagCode"), ~ . %in% c("T1", "T12", "T2", "T3", "T5", "T6", "TT")))
+      sti_test_count_hiv = rowSums(across(starts_with("DiagCode"), ~ . %in% c("T1", "T12", "T2", "T3", "T5", "T6", "TT", "P1A", "T4", "T7", "T-HIV", "S2", "RHTR", "HA12", "RHTN")))
+    )
+  
+  # STI flag no HIV, plus count
+  df <- flag_cl(df, c("T1", "T12", "T2", "T3", "T5", "T6", "TT"), "sti_test_no_hiv")
+  df <- df %>%
+    mutate(
+      sti_test_count_no_hiv = rowSums(across(starts_with("DiagCode"), ~ . %in% c("T1", "T12", "T2", "T3", "T5", "T6", "TT")))
     )
   
   # Date breakdown
@@ -74,7 +82,6 @@ data_processing <- function(df, hiv_codes, sti_codes) {
 }
 
 #episode count function, including mitigating for repeated episode numbers on different dates
-#also includes sti 
 
 episode_count <- function(df, 
                           patient = "PatientIdentifier", 
