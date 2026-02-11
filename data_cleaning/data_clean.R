@@ -198,8 +198,8 @@ unity_hiv <- unity_hiv %>% arrange(EventDate)
 croydon_hiv <- croydon_hiv %>% arrange(EventDate)
 
 #save intermediate step as CSV
-write.csv(unity_hiv, "./Analysis/Processed/unity_hiv_episodes.csv")
-write.csv(croydon_hiv, "./Analysis/Processed/croydon_hiv_episodes.csv")
+write.csv(unity_hiv, "./Analysis/Processed/unity_episodes.csv")
+write.csv(croydon_hiv, "./Analysis/Processed/croydon_episodes.csv")
 
 #append datasets together to create one analytic dataset
 
