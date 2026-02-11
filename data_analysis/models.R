@@ -464,26 +464,26 @@ outcomes <- list(
     outcome_var = "hiv_test",
     label = "HIV tests"
   ),
-  new_hiv = list(
-    outcome_var = "new_hiv",
-    label = "New HIV diagnoses"
+  # new_hiv = list(
+  #   outcome_var = "new_hiv",
+  #   label = "New HIV diagnoses"
+  # ),
+  sti_test_count_hiv = list(
+    outcome_var = "sti_test_count_hiv",
+    label = "STI tests with HIV tests"
   ),
-  declined_hiv_test = list(
-    outcome_var = "declined_hiv_test",
-    label = "Declined HIV test"
-  ),
-  sti_test_count = list(
-    outcome_var = "sti_test_count",
-    label = "STI tests"
+  sti_test_count_no_hiv = list(
+    outcome_var = "sti_test_count_no_hiv",
+    label = "STI tests without HIV tests"
   ),
   weekly_episode_count = list(
     outcome_var = "weekly_episode_count",
-    label = "Weekly episodes"
+    label = "episodes"
   ),
-  current_prep = list(
-    outcome_var = "current_prep",
-    label = "current PrEP prescriptions"
-  )
+  # current_prep = list(
+  #   outcome_var = "current_prep",
+  #   label = "current PrEP prescriptions"
+  # )
 )
 
 #define comparisons 
@@ -568,7 +568,7 @@ for (outcome_name in names(outcomes)) {
       outcome_label = specification$label,
       group_var = "group_bristol",
       groups_to_include = comparison$groups,
-      save_plot = FALSE,
+      save_plot = save_plots,
       filename  = paste0("./Analysis/plots/newcits_",
                          comparison_name, "_", outcome_name, ".png")
     )
