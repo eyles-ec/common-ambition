@@ -18,7 +18,7 @@ redact_small_counts <- function(df, threshold = 6) {
     ))
 }
 
-#generate patient levle data from episodic for input into table 1 function
+#generate patient level data from episodic for input into table 1 function
 make_patient_data <- function(data) {
   data %>%
     group_by(PatientIdentifier) %>%
@@ -231,7 +231,6 @@ continuous_vars_patient <- c(
   "AgeAtAttendance",
   "episode_count",
   "hiv_test", "declined_hiv_test",
-  "sti_test_no_hiv", "sti_test_hiv",
   "sti_test_count_no_hiv", "sti_test_count_hiv"
 )
 
