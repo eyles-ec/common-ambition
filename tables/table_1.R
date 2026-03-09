@@ -119,22 +119,8 @@ generate_table1 <- function(data, group_var, categorical_vars, continuous_vars,
     mutate(variable = factor(variable, levels = ordered_labels)) %>%
     arrange(variable)
   
-  #build a gt table, which is nicer to look at in R, exportable to LaTeX
-  gt_tbl <- table1 %>%
-    gt(rowname_col = "variable") %>%
-    tab_header(title = title)
-  
-  #add the row groups to the gt table
-  for (grp in names(row_groups)) {
-    gt_tbl <- gt_tbl %>%
-      tab_row_group(
-        label = grp,
-        rows = variable %in% variable_labels[row_groups[[grp]]]
-      )
-  }
-  
-  #returns the data exportable to csv, and the gt table (exportable to LaTeX etc)
-  return(list(data = table1, gt = gt_tbl))
+  #return the table
+  table1
 }
 
 #pull wd from paths.R (put in .gitignore)
