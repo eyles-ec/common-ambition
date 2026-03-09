@@ -1,6 +1,5 @@
 library(dplyr)
 library(tidyr)
-library(gt) 
 
 #helper function to redact counts of (by default, less than 6, but modifiable with threshold argument)
 #call it in generate_table1 function after categorical summary
@@ -120,7 +119,7 @@ generate_table1 <- function(data, group_var, categorical_vars, continuous_vars,
     arrange(variable)
   
   #return the table
-  table1
+  return(table1)
 }
 
 #pull wd from paths.R (put in .gitignore)
@@ -239,15 +238,24 @@ table1_patient_all  <- generate_table1(patient_all,  group_var, categorical_vars
 table1_patient_pre  <- generate_table1(patient_pre,  group_var, categorical_vars_patient, continuous_vars_patient, variable_labels, row_groups, title = "Table 1: Pre-CAB Patient Summary by Group")
 table1_patient_post <- generate_table1(patient_post, group_var, categorical_vars_patient, continuous_vars_patient, variable_labels, row_groups, title = "Table 1: Post-CAB Patient Summary by Group")
 
+#add labels to each table for ease of use
+table1_all$period  <- "Overall"
+table1_pre$period  <- "Pre-CAB"
+table1_post$period <- "Post-CAB"
+
+table1_patient_all$period <- "Overall"
+table1_patient_pre$period <- "Pre-CAB"
+table1_patient_post$period <- "Post-CAB "
+
 #create a directory for table 1 outputs
 dir.create("./Table1", showWarnings = FALSE)
 
 #write episodic tables to csv
-write.csv(table1_all$data, "./Table1/table1_overall_episodic.csv", row.names = FALSE)
-write.csv(table1_pre$data, "./Table1/table1_pre_intervention_episodic.csv", row.names = FALSE)
-write.csv(table1_post$data, "./Table1/table1_post_intervention_episodic.csv", row.names = FALSE)
+write.csv(table1_all, "./Table1/table1_overall_episodic.csv", row.names = FALSE)
+write.csv(table1_pre, "./Table1/table1_pre_intervention_episodic.csv", row.names = FALSE)
+write.csv(table1_post, "./Table1/table1_post_intervention_episodic.csv", row.names = FALSE)
 
 #write patient tables to csv
-write.csv(table1_patient_all$data, "./Table1/table1_overall_patient.csv", row.names = FALSE)
-write.csv(table1_patient_pre$data, "./Table1/table1_pre_intervention_patient.csv",row.names = FALSE)
-write.csv(table1_patient_post$data, "./Table1/table1_post_intervention_patient.csv", row.names = FALSE)
+write.csv(table1_patient_all, "./Table1/table1_overall_patient.csv", row.names = FALSE)
+write.csv(table1_patient_pre, "./Table1/table1_pre_intervention_patient.csv",row.names = FALSE)
+write.csv(table1_patient_post, "./Table1/table1_post_intervention_patient.csv", row.names = FALSE)
