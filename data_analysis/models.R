@@ -36,8 +36,9 @@ fisher_exact <- function(df,
   #Add p in, but as a row because df format
   p_row <- data.frame(
     group = "p_value",
-    t(ft$p.value)
+    matrix(rep(ft$p.value, length(periods)), nrow = 1)
   )
+  
   colnames(p_row) <- colnames(table_df)
   table_df <- rbind(table_df, p_row)
   
