@@ -75,6 +75,21 @@ setwd(wd)
 #load analysis dataset
 cab<- read.csv("./Analysis/weekly_combined.csv")
 
+#create combined location x ethnicity (really need to update cleaning steps)
+
+cab <- cab %>%
+  mutate(
+    group_bristol = case_when(
+      location == "Bristol" & ethn_simple == "ACHC" ~ "Bristol ACHC",
+      location == "Bristol" & ethn_simple == "non ACHC" ~ "Bristol non ACHC",
+      location == "Croydon" & ethn_simple == "ACHC" ~ "Croydon ACHC",
+      location == "Croydon" & ethn_simple == "non ACHC" ~ "Croydon non ACHC",
+      TRUE ~ NA_character_
+    ),
+    group_bristol = factor(group_bristol, levels = c(
+      "Bristol ACHC", "Bristol non ACHC", "Croydon ACHC", "Croydon non ACHC"
+    ))
+  )
 
 #call plot function
-plot_outcomes(cab[cab$location == "Bristol",], "new_hiv_rate", y_label  = "Weekly episode rate per 1000", plot_title = "Weekly episode rate by group")
+plot_outcomes(cab[cab$group_bristol != "Croydon non ACHC",], "hiv_test_rate", y_label  = "Weekly HIV testing rate per 1000", plot_title = "Weekly HIV testing rate by group", save_plot = TRUE, filename = "./plots/hiv_test_loess.png")
