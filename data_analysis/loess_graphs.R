@@ -73,7 +73,7 @@ source("../paths.R")
 setwd(wd)
 
 #load analysis dataset
-cab<- read.csv("./Analysis/weekly_combined.csv")
+cab<- read.csv("./Analysis/weekly_combined_corrected.csv")
 
 #create combined location x ethnicity (really need to update cleaning steps)
 
@@ -92,4 +92,4 @@ cab <- cab %>%
   )
 
 #call plot function
-plot_outcomes(cab[cab$group_bristol != "Croydon non ACHC",], "hiv_test_rate", y_label  = "Weekly HIV testing rate per 1000", plot_title = "Weekly HIV testing rate by group", save_plot = TRUE, filename = "./plots/hiv_test_loess.png")
+plot_outcomes(cab[cab$group_bristol != "Croydon non ACHC",], "hiv_test_rate", y_label  = "HIV tests", plot_title = "HIV tests", save_plot = TRUE, filename = "./plots/hiv_test_loess.png")

@@ -48,7 +48,7 @@ setwd(wd)
 
 #load analysis dataset
 
-cab <- read.csv("./Processed/combined_episodes.csv")
+cab <- read.csv("./Analysis/Processed/combined_episodes_corrected.csv")
 
 #ensure type matching for date column
 cab$EventDate<- as.Date(cab$EventDate)
@@ -106,4 +106,4 @@ cab_weekly <- cab_weekly %>%
   )
 
 #export weekly data 
-write.csv(cab_weekly, "./Analysis/weekly_combined.csv")
+write.csv(cab_weekly, "./Analysis/weekly_combined_corrected.csv")

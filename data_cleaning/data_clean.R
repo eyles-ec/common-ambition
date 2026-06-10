@@ -14,6 +14,29 @@ flag_cl <- function(df, code_list, new_col_name = "has_any_code") {
     )
 }
 
+#function for checking and consolidating duplicates as new croydon extract has overlapping dates with cab1
+dedup <- function(df, key_vars){
+
+    dup_temp<- df %>% 
+                  group_by(across(all_of(key_vars))) %>%
+                  summarise(n = n(), .groups = "drop")
+          
+    #sum up all the T in this
+    n_dup <- sum(dup_temp$n > 1)
+          #write a message to the console
+          message("There are ", n_dup, " duplicate episodes")
+          #return original data with . 
+    
+    df<- df %>%
+      #group by variables, keep only the first of any duplicates
+      group_by(across(all_of(key_vars))) %>%
+      slice(1) %>%
+      ungroup() #return data in episodic format
+    
+  return(df)
+  
+}
+
 #function for cleaning the data and creating filters
 data_processing <- function(df, hiv_codes, sti_codes) {
   #add a flag for whether an episode includes hiv diagnosis, hiv testing and/or prep or sti testing
@@ -166,15 +189,40 @@ croydon_cab1 <- read.csv("./RawData/croydon.csv")
 ck_cab1 <- read.csv("./RawData/CK_csv.csv")
 
 unity_cab2 <- read.csv("./RawData_CAB2/unity.csv")
-croydon_cab2 <- read.csv("./RawData_CAB2/croydon.csv")
+croydon_cab2_p1 <- read.csv("./RawData_CAB2/croydon_new_extract/Croydon_oct23_dec23.csv")
+croydon_cab2_p2 <- read.csv("./RawData_CAB2/croydon_new_extract/Croydon_jan24_june24.csv")
+croydon_cab2_p3 <- read.csv("./RawData_CAB2/croydon_new_extract/Croydon_july24_dec24.csv")
+croydon_cab2 <- append_dfs(croydon_cab2_p1, croydon_cab2_p2, croydon_cab2_p3)
+
+#date admin for corydon
+croydon_cab1 <- croydon_cab1 %>%
+  mutate(EventDate = as.Date(EventDate, format = "%d/%m/%Y"))
+
+croydon_cab1<- croydon_cab1 %>%  filter(EventDate <= as.Date("2023-10-27")) #ensure there's no duplicates between cab1 and cab2 extracts 
+
+croydon_cab2 <- croydon_cab2 %>%
+  mutate(EventDate = as.Date(EventDate, format = "%d/%m/%Y"))
+
 
 #append datasets using append_data function
-
 unity <- append_dfs(unity_cab1, ck_cab1, unity_cab2)
+
+#date admin
+unity <- unity %>% mutate(EventDate = as.Date(EventDate, format = "%d/%m/%Y"))
 
 #croydon 2 onto croydon 1
 
 croydon <- append_dfs(croydon_cab1, croydon_cab2)
+
+croydon <- croydon %>% mutate(EventDate = as.Date(EventDate, format = "%d/%m/%Y"))
+
+#set key vars for duplicate checking
+key_vars <- c("PatientIdentifier", "EventDate")
+
+#check/remove any duplicates 
+
+unity <- dedup(unity, key_vars)
+croydon <- dedup(croydon, key_vars) 
 
 #load shappt reference codes for HIV and PrEP
 
@@ -195,11 +243,11 @@ croydon_hiv$location <- "Croydon"
 
 #sort by date
 unity_hiv <- unity_hiv %>% arrange(EventDate)
-croydon_hiv <- croydon_hiv %>% arrange(EventDate)
+croydon_hiv <- croydon2_hiv %>% arrange(EventDate)
 
 #save intermediate step as CSV
 write.csv(unity_hiv, "./Analysis/Processed/unity_episodes.csv")
-write.csv(croydon_hiv, "./Analysis/Processed/croydon_episodes.csv")
+write.csv(croydon_hiv, "./Analysis/Processed/croydon_episodes_NEWEST.csv")
 
 #append datasets together to create one analytic dataset
 
@@ -207,6 +255,21 @@ combined_data <- append_dfs(unity_hiv, croydon_hiv)
 
 combined_data <- combined_data %>% arrange(EventDate)
 
+#add in groupings
+combined_data <- combined_data %>%
+  mutate(
+    group_bristol = case_when(
+      location == "Bristol" & ethn_simple == "ACHC" ~ "Bristol ACHC",
+      location == "Bristol" & ethn_simple == "non ACHC" ~ "Bristol non ACHC",
+      location == "Croydon" & ethn_simple == "ACHC" ~ "Croydon ACHC",
+      location == "Croydon" & ethn_simple == "non ACHC" ~ "Croydon non ACHC",
+      TRUE ~ NA_character_
+    ),
+    group_bristol = factor(group_bristol, levels = c(
+      "Bristol ACHC", "Bristol non ACHC", "Croydon ACHC", "Croydon non ACHC"
+    ))
+  )
+
 #save combined dataset
-write.csv(combined_data, "./Analysis/Processed/combined_episodes.csv")
+write.csv(combined_data, "./Analysis/Processed/combined_episodes_corrected.csv")
 

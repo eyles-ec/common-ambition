@@ -515,7 +515,7 @@ source("../paths.R")
 setwd(wd)
 
 #load analysis dataset
-cab<- read.csv("./Analysis/weekly_combined.csv")
+cab<- read.csv("./Analysis/weekly_combined_new.csv")
 
 #define outcomes
 
@@ -559,8 +559,8 @@ comparisons <- list(
 )
 
 #create output folders
-dir.create("./Analysis/results", recursive = TRUE, showWarnings = FALSE)
-dir.create("./Analysis/plots",   recursive = TRUE, showWarnings = FALSE)
+dir.create("./Analysis/results_new", recursive = TRUE, showWarnings = FALSE)
+dir.create("./Analysis/plots_new",   recursive = TRUE, showWarnings = FALSE)
 
 # TRUE to save plots as PNGs through your plotting functions (false if unneeded)
 save_plots <- TRUE
@@ -636,7 +636,7 @@ for (outcome_name in names(outcomes)) {
       group_var = "group_bristol",
       groups_to_include = comparison$groups,
       save_plot = save_plots,
-      filename  = paste0("./Analysis/plots/newcits_",
+      filename  = paste0("./Analysis/plots_new/newcits_",
                          comparison_name, "_", outcome_name, ".png")
     )
     print(p)
@@ -645,24 +645,124 @@ for (outcome_name in names(outcomes)) {
     tidy_df <- broom::tidy(cits_out$model)
     write.csv(
       tidy_df,
-      paste0("./Analysis/results/newcits_", comparison_name, "_",
+      paste0("./Analysis/results_new/newcits_", comparison_name, "_",
              outcome_name, "_model.csv"),
       row.names = FALSE
     )
 
     write.csv(
       cits_out$summary_table,
-      paste0("./Analysis/results/newcits_", comparison_name, "_",
+      paste0("./Analysis/results_new/newcits_", comparison_name, "_",
              outcome_name, "_summary_table.csv"),
       row.names = FALSE
     )
 
     write.csv(
       as.data.frame(fisher_out$table_df),
-      paste0("./Analysis/results/fisher_", comparison_name, "_", outcome_name, "_table.csv"),
+      paste0("./Analysis/results_new/fisher_", comparison_name, "_", outcome_name, "_table.csv"),
       row.names = FALSE
     )
   }
 }
 
+#rerun with 52 week follow up 
+#create 52 week follow up df
+cab_censored <- cab %>%
+    filter(time <= 52)
 
+#run it in a loop for easy changes to outcomes etc
+for (outcome_name in names(outcomes)) {
+  specification <- outcomes[[outcome_name]]
+  
+  for (comparison_name in names(comparisons)) {
+    comparison <- comparisons[[comparison_name]]
+    
+    message("Processing: ", outcome_name, " — ", comparison_name)
+    
+    #fit fisher's exact test for small n data
+    fisher_out <- fisher_exact(
+      df = cab_censored,
+      outcome_var = specification$outcome_var,
+      groups_to_include = comparison$groups
+    )
+    # 
+    # #Fit the CITs model
+    cits <- fit_cits_model(
+      df = cab_censored,
+      outcome_var = specification$outcome_var,
+      groups_to_include = comparison$groups,
+      reference_group = comparison$ref
+    )
+    
+    # # Generate counterfactuals and attach back to object
+    # # write a message with info for debugging 
+    
+    cf <- generate_counterfactual(
+      df = cits$data,
+      model = cits$model,
+      group_name  = "Bristol ACHC",
+      outcome_var = specification$outcome_var,
+      time_var    = "time",
+      group_var   = "group_bristol",
+      period_var  = "period",
+      summary = TRUE
+    )
+    
+    cits_out <- list(
+      model = cits$model,
+      family_used = cits$family_used,
+      dispersion = cits$dispersion,
+      
+      data = cf$data,                        # contains yhat + cf etc.
+      summary_table = cf$summary_table,      # keep numeric internally (recommended)
+      
+      meta = list(
+        outcome_name = outcome_name,
+        outcome_var = specification$outcome_var,
+        outcome_label = specification$label,
+        comparison_name = comparison_name,
+        groups = comparison$groups,
+        reference_group = comparison$ref
+      )
+    )
+    
+    if (!outcome_name %in% names(results)) results[[outcome_name]] <- list()
+    results[[outcome_name]][[comparison_name]] <- cits_out
+    # #create and save plots (CITS plots)
+    # 
+    #  #plots are also printed 
+    p <- plot_cits(
+      list(data = cits_out$data),
+      outcome_var = specification$outcome_var,
+      outcome_label = specification$label,
+      group_var = "group_bristol",
+      groups_to_include = comparison$groups,
+      save_plot = save_plots,
+      filename  = paste0("./Analysis/plots_new/CSnewcits_",
+                         comparison_name, "_", outcome_name, ".png")
+    )
+    print(p)
+    
+    # #tidy and save model specs and summary
+    tidy_df <- broom::tidy(cits_out$model)
+    write.csv(
+      tidy_df,
+      paste0("./Analysis/results_new/CSnewcits_", comparison_name, "_",
+             outcome_name, "_model.csv"),
+      row.names = FALSE
+    )
+    
+    write.csv(
+      cits_out$summary_table,
+      paste0("./Analysis/results_new/CSnewcits_", comparison_name, "_",
+             outcome_name, "_summary_table.csv"),
+      row.names = FALSE
+    )
+    
+    write.csv(
+      as.data.frame(fisher_out$table_df),
+      paste0("./Analysis/results_new/CSfisher_", comparison_name, "_", outcome_name, "_table.csv"),
+      row.names = FALSE
+    )
+  }
+}
