@@ -92,4 +92,4 @@ cab <- cab %>%
   )
 
 #call plot function
-plot_outcomes(cab[cab$group_bristol != "Croydon non ACHC",], "hiv_test_rate", y_label  = "HIV tests", plot_title = "HIV tests", save_plot = TRUE, filename = "./plots/hiv_test_loess.png")
+plot_outcomes(cab[cab$group_bristol != "Croydon non ACHC",], "hiv_test_rate", y_label  = "HIV tests", plot_title = "HIV test rate / 1000", save_plot = TRUE, filename = "./plots/hiv_test_loess.png")
