@@ -515,7 +515,7 @@ source("../paths.R")
 setwd(wd)
 
 #load analysis dataset
-cab<- read.csv("./Analysis/weekly_combined_new.csv")
+cab<- read.csv("./Analysis/weekly_combined_corrected.csv")
 
 #define outcomes
 
@@ -559,8 +559,8 @@ comparisons <- list(
 )
 
 #create output folders
-dir.create("./Analysis/results_new", recursive = TRUE, showWarnings = FALSE)
-dir.create("./Analysis/plots_new",   recursive = TRUE, showWarnings = FALSE)
+dir.create("./Analysis/results_corrected", recursive = TRUE, showWarnings = FALSE)
+dir.create("./Analysis/plots_corrected",   recursive = TRUE, showWarnings = FALSE)
 
 # TRUE to save plots as PNGs through your plotting functions (false if unneeded)
 save_plots <- TRUE
@@ -636,7 +636,7 @@ for (outcome_name in names(outcomes)) {
       group_var = "group_bristol",
       groups_to_include = comparison$groups,
       save_plot = save_plots,
-      filename  = paste0("./Analysis/plots_new/newcits_",
+      filename  = paste0("./Analysis/plots_corrected/cits_",
                          comparison_name, "_", outcome_name, ".png")
     )
     print(p)
@@ -645,21 +645,21 @@ for (outcome_name in names(outcomes)) {
     tidy_df <- broom::tidy(cits_out$model)
     write.csv(
       tidy_df,
-      paste0("./Analysis/results_new/newcits_", comparison_name, "_",
+      paste0("./Analysis/results_corrected/cits_", comparison_name, "_",
              outcome_name, "_model.csv"),
       row.names = FALSE
     )
 
     write.csv(
       cits_out$summary_table,
-      paste0("./Analysis/results_new/newcits_", comparison_name, "_",
+      paste0("./Analysis/results_corrected/cits_", comparison_name, "_",
              outcome_name, "_summary_table.csv"),
       row.names = FALSE
     )
 
     write.csv(
       as.data.frame(fisher_out$table_df),
-      paste0("./Analysis/results_new/fisher_", comparison_name, "_", outcome_name, "_table.csv"),
+      paste0("./Analysis/results_corrected/fisher_", comparison_name, "_", outcome_name, "_table.csv"),
       row.names = FALSE
     )
   }
@@ -738,7 +738,7 @@ for (outcome_name in names(outcomes)) {
       group_var = "group_bristol",
       groups_to_include = comparison$groups,
       save_plot = save_plots,
-      filename  = paste0("./Analysis/plots_new/CSnewcits_",
+      filename  = paste0("./Analysis/plots_corrected/CScits_",
                          comparison_name, "_", outcome_name, ".png")
     )
     print(p)
@@ -747,21 +747,21 @@ for (outcome_name in names(outcomes)) {
     tidy_df <- broom::tidy(cits_out$model)
     write.csv(
       tidy_df,
-      paste0("./Analysis/results_new/CSnewcits_", comparison_name, "_",
+      paste0("./Analysis/results_corrected/CScits_", comparison_name, "_",
              outcome_name, "_model.csv"),
       row.names = FALSE
     )
     
     write.csv(
       cits_out$summary_table,
-      paste0("./Analysis/results_new/CSnewcits_", comparison_name, "_",
+      paste0("./Analysis/results_corrected/CScits_", comparison_name, "_",
              outcome_name, "_summary_table.csv"),
       row.names = FALSE
     )
     
     write.csv(
       as.data.frame(fisher_out$table_df),
-      paste0("./Analysis/results_new/CSfisher_", comparison_name, "_", outcome_name, "_table.csv"),
+      paste0("./Analysis/results_corrected/CSfisher_", comparison_name, "_", outcome_name, "_table.csv"),
       row.names = FALSE
     )
   }
