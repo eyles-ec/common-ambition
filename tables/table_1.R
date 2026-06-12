@@ -131,7 +131,7 @@ setwd(wd)
 
 #load analysis dataset
 
-cab <- read.csv("./Processed/combined_episodes.csv")
+cab <- read.csv("./Analysis/Processed/combined_episodes_corrected.csv")
 
 #create combined location x ethnicity 
 
@@ -248,14 +248,14 @@ table1_patient_pre$period <- "Pre-CAB"
 table1_patient_post$period <- "Post-CAB "
 
 #create a directory for table 1 outputs
-dir.create("./Table1", showWarnings = FALSE)
+dir.create("./Table1_corrected", showWarnings = FALSE)
 
 #write episodic tables to csv
-write.csv(table1_all, "./Table1/table1_overall_episodic.csv", row.names = FALSE)
-write.csv(table1_pre, "./Table1/table1_pre_intervention_episodic.csv", row.names = FALSE)
-write.csv(table1_post, "./Table1/table1_post_intervention_episodic.csv", row.names = FALSE)
+write.csv(table1_all, "./Table1_corrected/table1_overall_episodic.csv", row.names = FALSE)
+write.csv(table1_pre, "./Table1_corrected/table1_pre_intervention_episodic.csv", row.names = FALSE)
+write.csv(table1_post, "./Table1_corrected/table1_post_intervention_episodic.csv", row.names = FALSE)
 
 #write patient tables to csv
-write.csv(table1_patient_all, "./Table1/table1_overall_patient.csv", row.names = FALSE)
-write.csv(table1_patient_pre, "./Table1/table1_pre_intervention_patient.csv",row.names = FALSE)
-write.csv(table1_patient_post, "./Table1/table1_post_intervention_patient.csv", row.names = FALSE)
+write.csv(table1_patient_all, "./Table1_corrected/table1_overall_patient.csv", row.names = FALSE)
+write.csv(table1_patient_pre, "./Table1_corrected/table1_pre_intervention_patient.csv",row.names = FALSE)
+write.csv(table1_patient_post, "./Table1_corrected/table1_post_intervention_patient.csv", row.names = FALSE)
