@@ -98,24 +98,29 @@ coef_tbl <- all_files %>%
     baseline_trend = map(data, ~ get_row(.x, "^time:group_bristol")),
     step = map(data, ~ get_row(.x, "group_bristol.*:period$")),
     post_trend = map(data, ~ get_row(.x, "time:group_bristol.*:period"))
+    
   ) %>%
   mutate(
     #extract log-coefficients
     baseline_est = map_dbl(baseline, ~ .x$estimate),
     baseline_low = map_dbl(baseline, ~ .x$estimate - 1.96 * .x$std.error),
     baseline_high = map_dbl(baseline, ~ .x$estimate + 1.96 * .x$std.error),
+    baseline_p = map_dbl(baseline, ~.x$p.value),
     
     trend_est = map_dbl(baseline_trend, ~ .x$estimate),
     trend_low = map_dbl(baseline_trend, ~ .x$estimate - 1.96 * .x$std.error),
     trend_high = map_dbl(baseline_trend, ~ .x$estimate + 1.96 * .x$std.error),
+    trend_p = map_dbl(baseline_trend, ~.x$p.value),
     
     step_est = map_dbl(step, ~ .x$estimate),
     step_low = map_dbl(step, ~ .x$estimate - 1.96 * .x$std.error),
     step_high = map_dbl(step, ~ .x$estimate + 1.96 * .x$std.error),
+    step_p = map_dbl(step, ~.x$p.value),
     
     post_est = map_dbl(post_trend, ~ .x$estimate),
     post_low = map_dbl(post_trend, ~ .x$estimate - 1.96 * .x$std.error),
-    post_high = map_dbl(post_trend, ~ .x$estimate + 1.96 * .x$std.error)
+    post_high = map_dbl(post_trend, ~ .x$estimate + 1.96 * .x$std.error),
+    post_p = map_dbl(post_trend, ~.x$p.value)
   ) %>%
   mutate(
     #exponentiate into rate ratios 
@@ -139,15 +144,19 @@ coef_tbl <- all_files %>%
     baseline_rr_ci = fmt_ci(baseline_rr, baseline_rr_low, baseline_rr_high),
     trend_rr_ci = fmt_ci(trend_rr, trend_rr_low, trend_rr_high),
     step_rr_ci = fmt_ci(step_rr, step_rr_low, step_rr_high),
-    post_rr_ci = fmt_ci(post_rr, post_rr_low, post_rr_high)
-  ) %>%
+    post_rr_ci = fmt_ci(post_rr, post_rr_low, post_rr_high),
+    baseline_p_fmt = sprintf("%.3f", baseline_p),
+    trend_p_fmt    = sprintf("%.3f", trend_p),
+    step_p_fmt     = sprintf("%.3f", step_p),
+    post_p_fmt     = sprintf("%.3f", post_p)
+    )%>%
   select( #keep only relevant columns
     type, comparison, outcome,
     
-    baseline_rr, baseline_rr_ci,
-    trend_rr, trend_rr_ci,
-    step_rr, step_rr_ci,
-    post_rr, post_rr_ci
+    baseline_rr, baseline_rr_ci, baseline_p, baseline_p_fmt,
+    trend_rr, trend_rr_ci, trend_p, trend_p_fmt,
+    step_rr, step_rr_ci, step_p, step_p_fmt,
+    post_rr, post_rr_ci, post_p, post_p_fmt
   )
 
 
