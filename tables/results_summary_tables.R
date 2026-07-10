@@ -8,10 +8,7 @@ parse_meta <- function(file) {
   
   tibble(
     file = file,
-    type = case_when(
-      str_detect(name, "^CScits|^CSfisher") ~ "52_week", #detect if it's censored
-      TRUE ~ "full"
-    ),
+    type = str_extract(name, "^w52|^w104|^w140"),
     analysis = case_when(
       str_detect(name, "model") ~ "model",
       str_detect(name, "summary_table") ~ "summary",
@@ -33,7 +30,7 @@ get_row <- function(df, pattern) {
 }
 
 #set results directory and list files that are available there
-results_dir <- "./Analysis/results_corrected"
+results_dir <- "./Analysis/results_split_followup"
 files <- list.files(results_dir, pattern = "\\.csv$", full.names = TRUE)
 
 #run the parseing function over all files in the list using map_dfr from purrr
@@ -48,13 +45,13 @@ fisher_tbl <- all_files %>%
   mutate(
     p_value = map_dbl(data, ~ .x %>%
                         filter(group == "p_value") %>%
-                        select(where(is.numeric)) %>%
+                        dplyr::select(where(is.numeric)) %>%
                         pull(1))
   ) %>%
   mutate(
     p_value_fmt = sprintf("%.3f", p_value)
   ) %>%
-  select(type, comparison, outcome, p_value, p_value_fmt)
+  dplyr::select(type, comparison, outcome, p_value, p_value_fmt)
 
 #pull out summary results for reporting from counterfactual/model summary table
 summary_tbl <- all_files %>%
@@ -150,7 +147,7 @@ coef_tbl <- all_files %>%
     step_p_fmt     = sprintf("%.3f", step_p),
     post_p_fmt     = sprintf("%.3f", post_p)
     )%>%
-  select( #keep only relevant columns
+  dplyr::select( #keep only relevant columns
     type, comparison, outcome,
     
     baseline_rr, baseline_rr_ci, baseline_p, baseline_p_fmt,
@@ -159,8 +156,10 @@ coef_tbl <- all_files %>%
     post_rr, post_rr_ci, post_p, post_p_fmt
   )
 
+#create summary folder
+dir.create(file.path(results_dir, "table_summaries"), recursive = TRUE, showWarnings = FALSE)
 
-#write all summary tables to CSV within results directory
+#write all summary tables to CSV within specified results directory
 write.csv(fisher_tbl,
           file.path(results_dir, "table_summaries/table_fisher_clean.csv"),
           row.names = FALSE)
