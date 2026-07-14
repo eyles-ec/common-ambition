@@ -65,6 +65,7 @@ p <- ggplot(
     ),
     guide = "none"
 ) +
+  scale_x_continuous(breaks = 2015:2024) +
   labs(
     x = "Year",
     y = "HIV testing rate per 1,000 population",
@@ -80,5 +81,3 @@ ggsave(
   height = 6,
   dpi = 300
 )
-
-
