@@ -91,5 +91,51 @@ cab <- cab %>%
     ))
   )
 
-#call plot function
-plot_outcomes(cab[cab$group_bristol != "Croydon non ACHC",], "hiv_test_rate", y_label  = "HIV tests", plot_title = "HIV test rate / 1000", save_plot = TRUE, filename = "./plots/hiv_test_loess.png")
+#define outcomes to plot
+outcomes <- list(
+  hiv_test = list(
+    outcome_var = "hiv_test_rate",
+    label = "HIV tests"
+  ),
+  new_hiv = list(
+    outcome_var = "new_hiv_rate",
+    label = "New HIV diagnoses"
+  ),
+  sti_test_count_hiv = list(
+    outcome_var = "sti_test_count_hiv_rate",
+    label = "STI tests with HIV tests"
+  ),
+  sti_test_count_no_hiv = list(
+    outcome_var = "sti_test_count_no_hiv_rate",
+    label = "STI tests without HIV tests"
+  ),
+  weekly_episode_count = list(
+    outcome_var = "weekly_episode_count_rate",
+    label = "episodes"
+  ),
+  current_prep = list(
+    outcome_var = "current_prep_rate",
+    label = "current PrEP prescriptions"
+  )
+)
+
+#create output directory
+dir.create("./Analysis/loess_plots/", recursive = TRUE, showWarnings = FALSE)
+
+#loop over outcomes and save plots
+for (outcome in outcomes) {
+  
+  plot_outcomes(
+    cab[cab$group_bristol != "Croydon non ACHC", ],
+    outcome_var = outcome$outcome_var,
+    y_label = outcome$label,
+    plot_title = paste0(outcome$label, " rate / 1000"),
+    save_plot = TRUE,
+    filename = paste0(
+      "./Analysis/loess_plots/",
+      outcome$outcome_var,
+      "_rate_loess.png"
+    ),
+    overwrite = TRUE
+  )
+}
