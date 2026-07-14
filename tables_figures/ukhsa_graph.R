@@ -14,7 +14,10 @@ setwd(wd)
 #csv made with data pulled from: (https://www.gov.uk/government/statistics/hiv-annual-data)
 ukhsa <- read.csv("./ukhsa_data.csv")
 
-#pivot to long format
+#read in ACHC london/sw data
+ukhsa_achc <- read.csv("./ukhsa_region_ethn.csv")
+
+#pivot surveillance to long format
 hiv_long <- ukhsa %>%
   pivot_longer(
     cols = starts_with("y"),
@@ -27,6 +30,21 @@ hiv_long <- ukhsa %>%
       y20 = 2020, y21 = 2021, y22 = 2022, y23 = 2023, y24 = 2024
     )[year],
     rate = parse_number(rate),
+    rate_per_1000 = rate / 100
+  )
+
+#pivot achc to long
+achc_long <- ukhsa_achc %>%
+  pivot_longer(
+    cols = starts_with("y"),
+    names_to = "year",
+    values_to = "rate"
+  ) %>%
+  mutate(
+    year = c(
+      y15 = 2015, y16 = 2016, y17 = 2017, y18 = 2018, y19 = 2019,
+      y20 = 2020, y21 = 2021, y22 = 2022, y23 = 2023, y24 = 2024
+    )[year],
     rate_per_1000 = rate / 100
   )
 
@@ -81,3 +99,33 @@ ggsave(
   height = 6,
   dpi = 300
 )
+
+
+p2<- ggplot(
+  achc_long,
+  aes(
+    x = year,
+    y = rate_per_1000,
+    colour = area,
+    linetype = ethn
+  )
+) +
+  geom_line(linewidth = 1) +
+  scale_colour_manual(values = cols) +
+  scale_x_continuous(breaks = 2015:2024) +
+  labs(
+    x = "Year",
+    y = "HIV testing rate per 1,000 population",
+    colour = "Area",
+    linetype = "Ethnicity"
+  ) +
+  theme_minimal()
+
+ggsave(
+  "./Analysis/ukhsa_achc_testing_rates.png",
+  plot = p2,
+  width = 10,
+  height = 6,
+  dpi = 300
+)
+
