@@ -29,8 +29,7 @@ hiv_long <- ukhsa %>%
       y15 = 2015, y16 = 2016, y17 = 2017, y18 = 2018, y19 = 2019,
       y20 = 2020, y21 = 2021, y22 = 2022, y23 = 2023, y24 = 2024
     )[year],
-    rate = parse_number(rate),
-    rate_per_1000 = rate / 100
+    rate = parse_number(rate)
   )
 
 #pivot achc to long
@@ -58,12 +57,13 @@ hiv_long <- hiv_long %>%
 cols <- viridis(length(unique(hiv_long$area)))
 names(cols) <- sort(unique(hiv_long$area))
 cols["England"] <- "#D55E00"
+cols["South West"] <- "#FF006E"
 
 #plot the data with the above 
 p <- ggplot(
   hiv_long,
   aes(year,
-    rate_per_1000,
+    rate,
     colour = area,
     linewidth = england,
     linetype = england)
@@ -86,14 +86,14 @@ p <- ggplot(
   scale_x_continuous(breaks = 2015:2024) +
   labs(
     x = "Year",
-    y = "HIV testing rate per 1,000 population",
+    y = "HIV testing rate per 100,000 population",
     colour = "Region"
   ) +
   theme_minimal()
 
 #save plot
 ggsave(
-  "./Analysis/ukhsa_hiv_testing_rates.png",
+  "./Analysis/ukhsa_hiv_testing_rates_100k.png",
   plot = p,
   width = 10,
   height = 6,
