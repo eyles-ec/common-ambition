@@ -1,0 +1,53 @@
+﻿code,diag_find_test,type
+H1,New HIV diagnosis,HIV
+H1A,New HIV diagnosis: Acute,HIV
+H1A,H1A - New HIV diagnosis: acute,HIV
+H1AX,New HIV diagnosis: acute - previously diagnosed elsewhere,HIV
+H1B,New HIV diagnosis: Late infection (AIDS defined),HIV
+H1B,H1B - HIV diagnosis: late (AIDS defined),HIV
+H1BX,New HIV diagnosis: late (AIDS defined) - previously diagnosed elsewhere,HIV
+H1X,New HIV diagnosis - previously diagnosed elsewhere,HIV
+C4,Chlamydial infection,STI
+C4M,Chlamydia - medication given,STI
+C4N,Non-specific genital infection (NSGI),STI
+C4NR,Non-specific genital infection (NSGI) - rectal infection (proctitis),STI
+C4O,Chlamydia - pharayngeal infection,STI
+C4OM,"Chlamydia - pharayngeal infection, medication given",STI
+C4OX,"Chlamydia - pharayngeal infection, previously diagnosed elsewhere",STI
+C4R,Chlamydia - rectal infection,STI
+C4RM,"Chlamydia - rectal infection, medication given",STI
+C4RX,"Chlamydia - rectal infection, previously diagnosed elsewhere",STI
+C4X,Chlamydia - previously diagnosed elsewhere,STI
+C13,Viral hepatitis B (HbsAg positive): First diagnosis,STI
+C14,Viral hepatitis C: First diagnosis,STI
+C15,Viral hepatitis A: Acute infection,STI
+A1,Primary syphilis,STI
+A10,Ocular syphilis,STI
+A11,Otosyphilis,STI
+A1X,Primary syphilis - previously diagnosed elsewhere,STI
+A2,Secondary syphilis,STI
+A2X,Secondary syphilis - previously diagnosed elsewhere,STI
+A3,Early latent syphilis,STI
+A3X,Early latent syphilis - previously diagnosed elsewhere,STI
+A4,Cardiovascular syphilis,STI
+A4X,Cardiovascular syphilis - previously diagnosed elsewhere,STI
+A5,Neurosyphilis,STI
+A5X,Neurosyphillis syphilis - previously diagnosed elsewhere,STI
+A6,All other late and latent syphilis,STI
+A6X,All other late and latent syphilis - previously diagnosed elsewhere,STI
+A7A,Congenital syphilis,STI
+A7AX,Congenital syphilis - previously diagnosed elsewhere,STI
+B,Gonorrhoea,STI
+BM,Gonorrhoea - medication given,STI
+BO,Gonorrhoea - pharayngeal infection,STI
+BOM,"Gonorrhoea - pharayngeal infection, medication given",STI
+BOX,"Gonorrhoea - pharayngeal infection, previously diagnosed elsewhere",STI
+BR,Gonorrhoea - rectal infection,STI
+BRM,"Gonorrhoea - rectal infection, medication given",STI
+BRX,"Gonorrhoea - rectal infection, previously diagnosed elsewhere",STI
+BX,Gonorrhoea - previously diagnosed elsewhere,STI
+C1,Chancroid,STI
+C10A,Anogenital Herpes simplex: First episode,STI
+C10AM,Anogenital Herpes simplex: first episode - medication given,STI
+C10B,Anogenital Herpes simplex: Recurrent episode,STI
+C10BM,Anogenital Herpes simplex: recurrent episode - medication given,STI

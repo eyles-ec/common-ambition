@@ -106,12 +106,12 @@ p2<- ggplot(
   aes(
     x = year,
     y = rate_per_1000,
-    colour = area,
-    linetype = ethn
+    colour = ethn,
+    linetype = area
   )
 ) +
   geom_line(linewidth = 1) +
-  scale_colour_manual(values = cols) +
+  scale_colour_viridis_d() +
   scale_x_continuous(breaks = 2015:2024) +
   labs(
     x = "Year",
