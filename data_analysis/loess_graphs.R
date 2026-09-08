@@ -35,8 +35,8 @@ plot_outcomes <- function(df, outcome_var,
     geom_smooth(method = "loess", se = FALSE) +
     geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
     labs(
-      title = paste("Trend of", outcome_var, if (facet) "by Group (Faceted)" else "by Group"),
-      x = "Time",
+      #title = paste("Trend of", outcome_var, if (facet) "by Group (Faceted)" else "by Group"),
+      x = "Time in weeks",
       y = y_label,
       color = "Group"
     ) +
@@ -95,32 +95,32 @@ cab <- cab %>%
 outcomes <- list(
   hiv_test = list(
     outcome_var = "hiv_test_rate",
-    label = "HIV tests"
+    label = "HIV tests per 1000"
   ),
   new_hiv = list(
     outcome_var = "new_hiv_rate",
-    label = "New HIV diagnoses"
+    label = "New HIV diagnoses per 1000"
   ),
   sti_test_count_hiv = list(
     outcome_var = "sti_test_count_hiv_rate",
-    label = "STI tests with HIV tests"
+    label = "STI tests with HIV tests per 1000"
   ),
   sti_test_count_no_hiv = list(
     outcome_var = "sti_test_count_no_hiv_rate",
-    label = "STI tests without HIV tests"
+    label = "STI tests without HIV tests per 1000"
   ),
   weekly_episode_count = list(
     outcome_var = "weekly_episode_count_rate",
-    label = "episodes"
+    label = "episodes per 1000"
   ),
   current_prep = list(
     outcome_var = "current_prep_rate",
-    label = "current PrEP prescriptions"
+    label = "current PrEP prescriptions per 1000"
   )
 )
 
 #create output directory
-dir.create("./Analysis/loess_plots/", recursive = TRUE, showWarnings = FALSE)
+dir.create("./Analysis/loess_plots_revised/", recursive = TRUE, showWarnings = FALSE)
 
 #loop over outcomes and save plots
 for (outcome in outcomes) {
@@ -129,10 +129,10 @@ for (outcome in outcomes) {
     cab[cab$group_bristol != "Croydon non ACHC", ],
     outcome_var = outcome$outcome_var,
     y_label = outcome$label,
-    plot_title = paste0(outcome$label, " rate / 1000"),
+    plot_title = NULL,
     save_plot = TRUE,
     filename = paste0(
-      "./Analysis/loess_plots/",
+      "./Analysis/loess_plots_revised/",
       outcome$outcome_var,
       "_rate_loess.png"
     ),

@@ -140,4 +140,3 @@ results_hiv <- test_to_diagnosis(cab = cab,
                                 )
 
 
-
