@@ -484,10 +484,10 @@ plot_cits <- function(cits_model,
               aes(y = cf), linetype = "solid", color = "grey40", size = 1) +
     geom_vline(xintercept = 0, linetype = "dashed", color = "black") +
     labs(
-      title = paste("Observed vs Predicted", outcome_label, "Over Time"),
-      subtitle = "Dashed line = CAB interventions (Week of April 25, 2022)\nDotted line = counterfactual prediction for Bristol ACHC",
+      #title = paste("Observed vs Predicted", outcome_label, "Over Time"),
+      #subtitle = "Dashed line = CAB interventions (Week of April 25, 2022)\nDotted line = counterfactual prediction for Bristol ACHC",
       x = "Weeks Since Intervention",
-      y = outcome_label,
+      y = paste0(outcome_label, " (count)"),
       color = "Group",
       fill = "Group"
     ) +
@@ -670,7 +670,8 @@ for (period_name in names(followups)) {
           "_",
           outcome_name,
           ".png"
-        )
+        ),
+        overwrite = TRUE
       )
       
       print(p)
