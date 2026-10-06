@@ -452,8 +452,8 @@ generate_counterfactual <- function(df, model,
 #height and width are in inches by default 
 
 plot_cits <- function(cits_model,
-                      outcome_var = "hiv_test",        # NEW: outcome column
-                      outcome_label = "HIV tests",     # NEW: label for plot
+                      outcome_var = "hiv_test",       
+                      outcome_label = "HIV tests",   
                       group_var = "group_bristol",
                       groups_to_include = c("Bristol ACHC", "Bristol non ACHC"),
                       save_plot = FALSE,
@@ -493,6 +493,110 @@ plot_cits <- function(cits_model,
     ) +
     facet_wrap(~ group, scales = "free_y") +
     theme_minimal()
+  
+  # Save plot if requested
+  if (save_plot) {
+    if (file.exists(filename) && !overwrite) {
+      warning(paste("File", filename, "already exists. Set overwrite = TRUE to replace it."))
+    } else {
+      ggsave(filename, plot = p, width = width, height = height, dpi = dpi)
+    }
+  }
+  
+  return(p)
+}
+
+
+plot_cits_cab_colours <- function(cits_model,
+                      outcome_var = "hiv_test",     
+                      outcome_label = "HIV tests",    
+                      group_var = "group_bristol",
+                      groups_to_include = c("Bristol ACHC", "Bristol non ACHC"),
+                      save_plot = FALSE,
+                      filename = "./subdirectory/plots/cits_plot.png",
+                      overwrite = FALSE,
+                      width = 10,
+                      height = 6,
+                      dpi = 300) {
+  
+  df_plot <- cits_model$data
+  
+  # Dynamically extract the group variable
+  df_plot <- df_plot %>%
+    mutate(group = .data[[group_var]]) %>%
+    filter(group %in% groups_to_include)
+  
+  # Counterfactual line only for Bristol ACHC
+  cf_data <- df_plot %>%
+    filter(group == "Bristol ACHC", !is.na(cf))
+  
+  # Build plot
+  p <- ggplot(
+    df_plot,
+    aes(x = time,
+        y = .data[[outcome_var]],
+        color = group)
+  ) +
+    geom_point(alpha = 0.5) +
+    geom_ribbon(
+      aes(ymin = yhat_lower,
+          ymax = yhat_upper,
+          fill = group),
+      alpha = 0.3,
+      color = NA
+    ) +
+    geom_line(aes(y = yhat), linewidth = 1.4) +
+    geom_line(
+      data = cf_data,
+      aes(y = cf),
+      color = "grey70",
+      linewidth = 1,
+      linetype = "solid"
+    ) +
+    geom_vline(
+      xintercept = 0,
+      linetype = "dashed",
+      color = "white"
+    ) +
+    scale_color_manual(
+      values = c(
+        "Bristol ACHC" = "#F7D708",     # CAB yellow
+        "Bristol non ACHC" = "#C81E3A" # CAB red
+      )
+    ) +
+    scale_fill_manual(
+      values = c(
+        "Bristol ACHC" = "#F7D708",
+        "Bristol non ACHC" = "#C81E3A"
+      )
+    ) +
+    labs(
+      x = "Weeks Since Intervention",
+      y = paste0(outcome_label, " (count)")
+    ) +
+    facet_wrap(~group, scales = "free_y") +
+    theme_minimal() +
+    theme(
+      panel.background = element_rect(fill = "black", colour = NA),
+      plot.background = element_rect(fill = "black", colour = NA),
+      
+      strip.background = element_rect(fill = "black", colour = NA),
+      strip.text = element_text(
+        colour = "white",
+        face = "bold",
+        size = 12
+      ),
+      
+      panel.grid.major = element_line(colour = "grey20"),
+      panel.grid.minor = element_blank(),
+      
+      axis.text = element_text(colour = "white"),
+      axis.title = element_text(colour = "white"),
+      plot.title = element_text(colour = "white"),
+      plot.subtitle = element_text(colour = "white"),
+      
+      legend.position = "none"
+    )
   
   # Save plot if requested
   if (save_plot) {
