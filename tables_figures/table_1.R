@@ -61,10 +61,24 @@ make_patient_data <- function(data) {
 #function to generate table 1 (Descriptives) for any input data. Requires vector of which 
 #variables are categorical, continuous, labels for the variables for the table, a 'row grouping,'
 #e.g. ordering by topic, and a title (defaults to table 1)
-generate_table1 <- function(data, group_var, categorical_vars, continuous_vars,
-                            variable_labels, row_groups, title = "Table 1: Descriptive Summary by Group") {
+generate_table1 <- function(data, 
+                            group_var, 
+                            categorical_vars, 
+                            continuous_vars,
+                            variable_labels, 
+                            row_groups, 
+                            hiv_denom = NULL,
+                            title = "Table 1: Descriptive Summary by Group") {
   
-  #categorical summary 
+  #calculate total observations per group for table headers
+  group_totals <- data %>%
+    group_by(.data[[group_var]]) %>%
+    summarise(
+      N = n(),
+      .groups = "drop"
+    )
+  
+  #categorical summary
   cat_summary <- data %>%
     mutate(across(all_of(categorical_vars), as.factor)) %>% #factorise in case they're not
     dplyr::select(all_of(c(group_var, categorical_vars))) %>% #subset only cat variables
@@ -73,7 +87,7 @@ generate_table1 <- function(data, group_var, categorical_vars, continuous_vars,
       names_to = "variable",
       values_to = "value"
     ) %>%
-    group_by(variable, value, .data[[group_var]]) %>%  
+    group_by(variable, value, .data[[group_var]]) %>%
     summarise(n = n(), .groups = "drop") %>% #produce count
     group_by(variable, .data[[group_var]]) %>%
     mutate(percent = round(100 * n / sum(n), 1)) %>% #produce %
@@ -103,20 +117,62 @@ generate_table1 <- function(data, group_var, categorical_vars, continuous_vars,
     dplyr::select(any_of(c("variable", group_var, "label"))) %>% #keep only what we need for table
     pivot_wider(names_from = all_of(group_var), values_from = label) #make wide again
   
-  #combine the two summaries together
-  table1 <- bind_rows(cat_summary, cont_summary)
+  #calculate HIV positivity (%)
+  #call a set of HIV denominators by group calculated outside the function
+  hiv_positivity <- data %>%
+    group_by(.data[[group_var]]) %>%
+    summarise(
+      new_hiv_cases = sum(new_hiv == TRUE, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    left_join(hiv_denom, by = group_var) %>%
+    mutate(
+      positivity = round(100 * new_hiv_cases / hiv_tests, 2)
+    ) %>%
+    mutate(label = paste0(positivity, "%")) %>%
+    dplyr::select(any_of(c(group_var, "label"))) %>%
+    pivot_wider(
+      names_from = all_of(group_var),
+      values_from = label
+    ) %>%
+    mutate(
+      variable = "hiv_positivity",
+      value = NA
+    )
+  
+  #combine the summaries together
+  table1 <- bind_rows(
+    cat_summary,
+    cont_summary,
+    hiv_positivity
+  )
   
   #add in the variable labels to the table
   table1$variable <- variable_labels[table1$variable]
   
   #reorder the variables by your row_groups argument
   #can keep variables of the same topic together
-  ordered_vars <- unlist(row_groups)
+  ordered_vars <- c(unlist(row_groups), "hiv_positivity")
   ordered_labels <- variable_labels[ordered_vars]
   
   table1 <- table1 %>%
     mutate(variable = factor(variable, levels = ordered_labels)) %>%
     arrange(variable)
+  
+  #append group totals to the column headers
+  for(i in seq_len(nrow(group_totals))) {
+    
+    old_name <- as.character(group_totals[[group_var]][i])
+    
+    new_name <- paste0(
+      old_name,
+      " (N=",
+      group_totals$N[i],
+      ")"
+    )
+    
+    names(table1)[names(table1) == old_name] <- new_name
+  }
   
   #return the table
   return(table1)
@@ -165,6 +221,22 @@ categorical_vars <- c(
 #episodic continuous variables
 continuous_vars <- c("AgeAtAttendance", "episode_count", "sti_test_count_no_hiv", "sti_test_count_hiv")
 
+#patient level categorical variables 
+categorical_vars_patient <- c(
+  "Sex",
+  "extant_hiv", "new_hiv", "new_late_hiv", 
+  "current_prep", "declined_prep", "stopped_prep"
+)
+
+#patient level continuous variables 
+continuous_vars_patient <- c(
+  "AgeAtAttendance",
+  "episode_count",
+  "hiv_test", "declined_hiv_test",
+  "sti_test_count_no_hiv", "sti_test_count_hiv"
+)
+
+
 #variable labels for table (nicer than variable names)
 variable_labels <- c(
   #demographics
@@ -177,6 +249,7 @@ variable_labels <- c(
   extant_hiv = "Known HIV",
   new_hiv = "New HIV diagnosis",
   new_late_hiv = "Late HIV diagnosis",
+  hiv_positivity = "HIV positivity (%)",
   
   #PrEP
   current_prep = "Current PrEP use",
@@ -190,7 +263,7 @@ variable_labels <- c(
   sti_test_count_hiv = "STI test count (with HIV)",
   
   #service use
-  episode_count = "Episode count",
+  episode_count = "Service use (episode count)",
   
   #grouping variable
   group_bristol = "Group"
@@ -199,29 +272,38 @@ variable_labels <- c(
 #ordering list, so the table will be in this order
 row_groups <- list(
   "Demographics" = c("Sex", "AgeAtAttendance"),
-  "Testing" = c("hiv_test", "declined_hiv_test", "extant_hiv", "new_hiv", "new_late_hiv", "sti_test_no_hiv", "sti_test_hiv", "sti_test_count_no_hiv", "sti_test_count_hiv"),
+  "Testing" = c("hiv_test", "declined_hiv_test", "extant_hiv", "new_hiv", "new_late_hiv", "hiv_positivity", "sti_test_no_hiv", "sti_test_hiv", "sti_test_count_no_hiv", "sti_test_count_hiv"),
   "PrEP" = c("current_prep", "declined_prep", "stopped_prep"),
   "Service use" = c("episode_count")
-)
-
-#patient level categorical variables 
-categorical_vars_patient <- c(
-  "Sex",
-  "extant_hiv", "new_hiv", "new_late_hiv",
-  "current_prep", "declined_prep", "stopped_prep"
-)
-
-#patient level continuous variables 
-continuous_vars_patient <- c(
-  "AgeAtAttendance",
-  "episode_count",
-  "hiv_test", "declined_hiv_test",
-  "sti_test_count_no_hiv", "sti_test_count_hiv"
 )
 
 #subset pre and post periods
 cab_pre  <- cab_subset %>% filter(time < 0)
 cab_post <- cab_subset %>% filter(time >= 0)
+
+#calculate HIV testing denominators
+#get HIV testing denominators from episodic data
+
+hiv_denom_all <- cab_subset %>%
+  group_by(group_bristol) %>%
+  summarise(
+    hiv_tests = sum(hiv_test == TRUE, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+hiv_denom_pre <- cab_pre %>%
+  group_by(group_bristol) %>%
+  summarise(
+    hiv_tests = sum(hiv_test == TRUE, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+hiv_denom_post <- cab_post %>%
+  group_by(group_bristol) %>%
+  summarise(
+    hiv_tests = sum(hiv_test == TRUE, na.rm = TRUE),
+    .groups = "drop"
+  )
 
 #generate patient data for overall and pre/post period
 patient_all  <- make_patient_data(cab_subset)
@@ -229,14 +311,14 @@ patient_pre  <- make_patient_data(cab_pre)
 patient_post <- make_patient_data(cab_post)
 
 #generate tables for episodic data
-table1_all  <- generate_table1(cab_subset,  group_var, categorical_vars, continuous_vars, variable_labels, row_groups, title = "Table 1: Overall Episodic Summary by Group")
-table1_pre  <- generate_table1(cab_pre,  group_var, categorical_vars, continuous_vars, variable_labels, row_groups, title = "Table 1: Pre-CAB Episodic Summary by Group")
-table1_post <- generate_table1(cab_post, group_var, categorical_vars, continuous_vars, variable_labels, row_groups, title = "Table 1: Post-CAB Episodic Summary by Group")
+table1_all  <- generate_table1(cab_subset,  group_var, categorical_vars, continuous_vars, variable_labels, row_groups, hiv_denom = hiv_denom_all, title = "Table 1: Overall Episodic Summary by Group")
+table1_pre  <- generate_table1(cab_pre,  group_var, categorical_vars, continuous_vars, variable_labels, row_groups, hiv_denom = hiv_denom_pre, title = "Table 1: Pre-CAB Episodic Summary by Group")
+table1_post <- generate_table1(cab_post, group_var, categorical_vars, continuous_vars, variable_labels, row_groups, hiv_denom = hiv_denom_post, title = "Table 1: Post-CAB Episodic Summary by Group")
 
 #generate tables for patient data
-table1_patient_all  <- generate_table1(patient_all,  group_var, categorical_vars_patient, continuous_vars_patient, variable_labels, row_groups, title = "Table 1: Overall Patient Summary by Group")
-table1_patient_pre  <- generate_table1(patient_pre,  group_var, categorical_vars_patient, continuous_vars_patient, variable_labels, row_groups, title = "Table 1: Pre-CAB Patient Summary by Group")
-table1_patient_post <- generate_table1(patient_post, group_var, categorical_vars_patient, continuous_vars_patient, variable_labels, row_groups, title = "Table 1: Post-CAB Patient Summary by Group")
+table1_patient_all  <- generate_table1(patient_all,  group_var, categorical_vars_patient, continuous_vars_patient, variable_labels, row_groups, hiv_denom = hiv_denom_all, title = "Table 1: Overall Patient Summary by Group")
+table1_patient_pre  <- generate_table1(patient_pre,  group_var, categorical_vars_patient, continuous_vars_patient, variable_labels, row_groups, hiv_denom = hiv_denom_pre, title = "Table 1: Pre-CAB Patient Summary by Group")
+table1_patient_post <- generate_table1(patient_post, group_var, categorical_vars_patient, continuous_vars_patient, variable_labels, row_groups, hiv_denom = hiv_denom_post, title = "Table 1: Post-CAB Patient Summary by Group")
 
 #add labels to each table for ease of use
 table1_all$period  <- "Overall"
