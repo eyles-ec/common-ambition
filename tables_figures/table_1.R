@@ -152,7 +152,7 @@ generate_table1 <- function(data,
   
   #reorder the variables by your row_groups argument
   #can keep variables of the same topic together
-  ordered_vars <- c(unlist(row_groups), "hiv_positivity")
+  ordered_vars <- unlist(row_groups)
   ordered_labels <- variable_labels[ordered_vars]
   
   table1 <- table1 %>%
